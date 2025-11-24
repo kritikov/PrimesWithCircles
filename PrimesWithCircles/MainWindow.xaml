@@ -1,0 +1,28 @@
+﻿<Window x:Class="PrimesWithCircles.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PrimesWithCircles"
+        mc:Ignorable="d"
+        Title="Primes with circles" Height="450" Width="800">
+    <Grid>
+        <Canvas x:Name="MainCanvas" Background="White"/>
+
+        <TextBlock
+        x:Name="LapCounterText"
+        Text="0"
+        FontSize="32"
+        Margin="20"
+        VerticalAlignment="Top"
+        HorizontalAlignment="Left"
+        Foreground="Black"
+        FontWeight="Bold"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="20">
+            <CheckBox x:Name="AutoModeCheck" Content="Auto mode" IsChecked="False" Margin="0,0,20,0"/>
+            <Button x:Name="StepButton" Content="Step" Width="80" Click="StepButton_Click"/>
+        </StackPanel>
+    </Grid>
+    
+</Window>
