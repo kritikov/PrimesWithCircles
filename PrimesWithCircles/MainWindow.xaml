@@ -11,7 +11,7 @@
 
         <TextBlock
         x:Name="LapCounterText"
-        Text="0"
+        Text="2"
         FontSize="32"
         Margin="20"
         VerticalAlignment="Top"
