@@ -1,37 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace PrimesWithCircles.Models
 {
-    internal class Circle
+    public class Circle
     {
-        internal Ellipse Pointer;
-        internal double Radious;
-        internal Ellipse Shape;
-        internal double Angle = -Math.PI / 2;
+        public double Radious { get; }
+        public Ellipse Shape { get; }
+        public Ellipse Pointer { get; }
+        public Polyline Trail { get; }
 
-        public Circle(double radious) { 
+        // Angle in radians, canonicalized to [0, 2π)
+        public double Angle { get; set; }
+
+        // angular speed in radians per second
+        public double AngularSpeed { get; set; }
+
+        // logical index / number this circle represents (1-based)
+        public int Index { get; set; }
+
+        // whether this number has been marked prime visually
+        public bool IsPrimeVisual { get; set; } = false;
+
+        public Circle(double radious, int index = 1)
+        {
             Radious = radious;
-
-            Pointer = new()
-            {
-                Width = 6,
-                Height = 6,
-                Fill = Brushes.Red
-            };
+            Index = index;
 
             Shape = new Ellipse
             {
-                Width = Radious * 2,
-                Height = Radious * 2,
+                Width = radious * 2,
+                Height = radious * 2,
                 Stroke = Brushes.Gray,
-                StrokeThickness = 2,
+                StrokeThickness = 1.5
             };
+
+            Pointer = new Ellipse
+            {
+                Width = 8,
+                Height = 8,
+                Fill = Brushes.White,
+                Stroke = Brushes.Black,
+                StrokeThickness = 1
+            };
+
+            Trail = new Polyline
+            {
+                Stroke = Brushes.LightGray,
+                StrokeThickness = 1,
+                Opacity = 0.6
+            };
+
+            // start at top: -π/2
+            Angle = -System.Math.PI / 2;
         }
     }
 }

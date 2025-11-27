@@ -1,8 +1,11 @@
 ﻿using PrimesWithCircles.Models;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
@@ -11,19 +14,20 @@ namespace PrimesWithCircles
     public partial class MainWindow : Window
     {
         private List<Circle> circles = new List<Circle>();
-        private double rotationSpeed = 0.1;
-        private double firstRadius = 10;
+        private double baseAngularSpeed = Math.PI; // radians per second for first circle (π rad/s ≈ 180°/s)
+        private double firstRadius = 30;
         private Point screenCenter;
 
-
         private int lapCounter = 2;
-        const double finishLine = 3 * Math.PI / 2;
-        private readonly DispatcherTimer timer = new();
+        private const double finishLine = 3 * Math.PI / 2;
 
         private bool isStepping = false;
-        private double targetAngle;
         private double startAngle;
+        private double targetAngle;
 
+        // rendering
+        private bool isRunning = false;
+        private DateTime lastRenderTime;
 
         public MainWindow()
         {
@@ -33,123 +37,262 @@ namespace PrimesWithCircles
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            // compute center after layout
             screenCenter = new Point(MainCanvas.ActualWidth / 2, MainCanvas.ActualHeight / 2);
 
-            AddCircle(firstRadius);
-            AddCircle(firstRadius * 2);
+            // initial two circles
+            AddCircle(firstRadius, index: 1);
+            AddCircle(firstRadius * 2, index: 2);
 
-            timer.Interval = TimeSpan.FromMilliseconds(16);
-            timer.Tick += OnTick;
+            // set initial speeds
+            UpdateAngularSpeeds();
+
+            LapCounterText.Text = lapCounter.ToString();
         }
 
-
-        /// <summary>
-        /// Add a circle to the list
-        /// </summary>
-        private void AddCircle(double radious)
+        private void StartRendering()
         {
-            var circle = new Circle(radious);
-            circles.Add(circle);
+            if (isRunning) return;
+            lastRenderTime = DateTime.UtcNow;
+            CompositionTarget.Rendering += OnRendering;
+            isRunning = true;
+        }
 
+        private void StopRendering()
+        {
+            if (!isRunning) return;
+            CompositionTarget.Rendering -= OnRendering;
+            isRunning = false;
+        }
+
+        private void OnRendering(object? sender, EventArgs e)
+        {
+            DateTime now = DateTime.UtcNow;
+            double elapsedSec = (now - lastRenderTime).TotalSeconds;
+            lastRenderTime = now;
+
+            if (AutoModeCheck.IsChecked == true)
+            {
+                // continuous rotate
+                RotateCircles(elapsedSec);
+            }
+            else
+            {
+                // manual: only rotate if stepping active
+                if (isStepping)
+                    RotateCircles(elapsedSec);
+            }
+        }
+
+        private void AddCircle(double radious, int? index = null)
+        {
+            int idx = index ?? (circles.Count + 1);
+            var circle = new Circle(radious, idx);
+
+            // style
+            circle.Shape.Stroke = Brushes.DimGray;
+            circle.Pointer.Fill = Brushes.OrangeRed;
+
+            // add to canvas: add shape under pointer/trail so trail sits in front
             MainCanvas.Children.Add(circle.Shape);
             MainCanvas.Children.Add(circle.Pointer);
+
+            circles.Add(circle);
 
             CenterCircle(circle);
             PositionPointer(circle);
         }
 
-        /// <summary>
-        ///  Position a circle in the center of the screen
-        /// </summary>
+        // helper to center shape
         private void CenterCircle(Circle circle)
         {
-            // position the circle in the center of the screen
             Canvas.SetLeft(circle.Shape, screenCenter.X - circle.Radious);
             Canvas.SetTop(circle.Shape, screenCenter.Y - circle.Radious);
-
         }
 
-        /// <summary>
-        ///  Position the pointer of a circle to a specific angle
-        /// </summary>
         private void PositionPointer(Circle circle)
         {
-            // position the pointer on top of the circle
-            double x1 = screenCenter.X + circle.Radious * Math.Cos(circle.Angle);
-            double y1 = screenCenter.Y + circle.Radious * Math.Sin(circle.Angle);
-            Canvas.SetLeft(circle.Pointer, x1 - circle.Pointer.Width / 2);
-            Canvas.SetTop(circle.Pointer, y1 - circle.Pointer.Height / 2);
+            double x = screenCenter.X + circle.Radious * Math.Cos(circle.Angle);
+            double y = screenCenter.Y + circle.Radious * Math.Sin(circle.Angle);
+
+            Canvas.SetLeft(circle.Pointer, x - circle.Pointer.Width / 2);
+            Canvas.SetTop(circle.Pointer, y - circle.Pointer.Height / 2);
+
+            // trail: append a point
+            if (circle.Trail != null)
+            {
+                var pts = circle.Trail.Points;
+                pts.Add(new System.Windows.Point(x, y));
+                if (pts.Count > 60) // cap trail length
+                    pts.RemoveAt(0);
+            }
         }
 
-        /// <summary>
-        ///  Rotate all circles on each timer tick
-        /// </summary>
-        private void OnTick(object sender, EventArgs e)
+        private void UpdateAngularSpeeds()
         {
-            RotateCircles();
-        }
-
-        /// <summary>
-        /// Rotate all the circles
-        /// </summary>
-        private void RotateCircles()
-        {
-            bool firstCircleCompletedLap = false;
-            bool someOtherCircleCompletedLap = false;
-
-            // foreach: περιστροφή όλων
+            // first circle gets baseAngularSpeed (radians/sec)
             for (int i = 0; i < circles.Count; i++)
             {
-                bool lapCompleted = RotateCircle(circles[i]);
+                var c = circles[i];
+                // speed scaled inversely by radius ratio to firstRadius (as your original)
+                c.AngularSpeed = baseAngularSpeed * (firstRadius / c.Radious);
+            }
+        }
 
-                // ΜΟΝΟ ο πρώτος μάς ενδιαφέρει
-                if (i == 0 && lapCompleted)
-                    firstCircleCompletedLap = true;
-                else if (lapCompleted)
-                    someOtherCircleCompletedLap = true;
+        /// <summary>
+        /// Rotate all circles for elapsedSec seconds. Stops and handles lap logic for first circle.
+        /// </summary>
+        private void RotateCircles(double elapsedSec)
+        {
+            bool firstCompleted = false;
+            bool someOtherCompleted = false;
+
+            for (int i = 0; i < circles.Count; i++)
+            {
+                var c = circles[i];
+                bool lap = RotateCircle(c, elapsedSec);
+
+                if (i == 0 && lap) firstCompleted = true;
+                else if (lap) someOtherCompleted = true;
             }
 
-            // if the first circle completed a lap, stop the timer
-            if (firstCircleCompletedLap)
+            if (firstCompleted)
             {
-                timer.Stop();
+                StopRendering();
                 lapCounter++;
                 LapCounterText.Text = lapCounter.ToString();
 
-                // if no other circle completed a lap, add a new circle
-                if (!someOtherCircleCompletedLap)
+                if (!someOtherCompleted)
                 {
-                    AddCircle(firstRadius * (lapCounter));
+                    // new circle for prime
+                    AddCircle(firstRadius * (lapCounter), index: circles.Count + 1);
+                    UpdateAngularSpeeds();
+                }
+
+                isStepping = false;
+            }
+        }
+
+        /// <summary>
+        /// Rotate individual circle for elapsedSec seconds. Returns true if that circle completed a lap (crossed finishLine).
+        /// </summary>
+        private bool RotateCircle(Circle circle, double elapsedSec)
+        {
+            double prev = circle.Angle;
+            // angle += ω * dt
+            circle.Angle += circle.AngularSpeed * elapsedSec;
+
+            // detect crossing 3π/2 relative to starting at -π/2
+            bool completed = prev < finishLine && circle.Angle >= finishLine;
+
+            // wrap to [0, 2π)
+            if (circle.Angle >= 2 * Math.PI)
+                circle.Angle -= 2 * Math.PI;
+
+            PositionPointer(circle);
+            return completed;
+        }
+
+        // --- UI handlers ---
+        private void StartBtn_Click(object sender, RoutedEventArgs e)
+        {
+            StartRendering();
+        }
+
+        private void StopBtn_Click(object sender, RoutedEventArgs e)
+        {
+            StopRendering();
+        }
+
+        private void StepButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (AutoModeCheck.IsChecked == true) return;
+
+            // if not running, start stepping
+            if (!isRunning)
+                StartRendering();
+
+            // Start a one-lap step for first circle
+            isStepping = true;
+            startAngle = circles[0].Angle;
+            targetAngle = startAngle + 2 * Math.PI;
+        }
+
+        private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            // scale baseAngularSpeed by slider (slider 0.02..1 default 0.5)
+            baseAngularSpeed = Math.PI * e.NewValue; // π * factor
+            UpdateAngularSpeeds();
+        }
+
+        private void AddCircleBtn_Click(object sender, RoutedEventArgs e)
+        {
+            AddCircle(firstRadius * (circles.Count + 1), index: circles.Count + 1);
+            UpdateAngularSpeeds();
+        }
+
+        /// <summary>
+        /// Fast sieve: compute primes up to N and color circles accordingly.
+        /// For demonstration: compute first M primes and create enough circles to show them.
+        /// </summary>
+        private void ComputePrimesBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // compute primes using sieve up to some limit (e.g. 2000)
+            int limit = 2000;
+            var primes = Sieve(limit);
+
+            // For demo, mark circles whose index (starting from 1) are primes
+            for (int i = 0; i < circles.Count; i++)
+            {
+                int number = i + 1; // mapping: circle index -> number
+                if (number <= limit && primes[number])
+                {
+                    MarkCirclePrime(circles[i]);
+                }
+                else
+                {
+                    UnmarkCircle(circles[i]);
                 }
             }
         }
 
-        /// <summary>
-        /// Rotate a circle
-        /// </summary>
-        private bool RotateCircle(Circle circle)
+        private void MarkCirclePrime(Circle c)
         {
-            double prev = circle.Angle;
-
-            // increment
-            circle.Angle += rotationSpeed / (circle.Radious / firstRadius);
-
-            // detect lap BEFORE wrap
-            bool completedLap = circle.Angle >= (3 * Math.PI / 2);
-
-            if (completedLap)
-                circle.Angle -= Math.PI * 2;
-
-            PositionPointer(circle);
-
-            return completedLap;
+            c.IsPrimeVisual = true;
+            c.Pointer.Fill = Brushes.LimeGreen;
+            c.Shape.Stroke = Brushes.Green;
         }
 
-
-        // Called when user clicks "Step"
-        private void StepButton_Click(object sender, RoutedEventArgs e)
+        private void UnmarkCircle(Circle c)
         {
-            timer.Start();
+            c.IsPrimeVisual = false;
+            c.Pointer.Fill = Brushes.OrangeRed;
+            c.Shape.Stroke = Brushes.DimGray;
+        }
+
+        private bool[] Sieve(int n)
+        {
+            var isPrime = Enumerable.Repeat(true, n + 1).ToArray();
+            isPrime[0] = isPrime[1] = false;
+            for (int p = 2; p * p <= n; p++)
+            {
+                if (!isPrime[p]) continue;
+                for (int multiple = p * p; multiple <= n; multiple += p)
+                    isPrime[multiple] = false;
+            }
+            return isPrime;
+        }
+
+        private void ResetBtn_Click(object sender, RoutedEventArgs e)
+        {
+            StopRendering();
+            MainCanvas.Children.Clear();
+            circles.Clear();
+            lapCounter = 0;
+            AddCircle(firstRadius, index: 1);
+            AddCircle(firstRadius * 2, index: 2);
+            UpdateAngularSpeeds();
+            LapCounterText.Text = lapCounter.ToString();
         }
     }
 }
