@@ -6,6 +6,9 @@ namespace PrimesWithCircles.Models
 {
     public class Circle
     {
+        public static double baseRadious = 30.0;
+        public static double baseAngularSpeed = Math.PI;
+
         public double Radious { get; }
         public Ellipse Shape { get; }
         public Ellipse Pointer { get; }
@@ -15,24 +18,24 @@ namespace PrimesWithCircles.Models
         public double Angle { get; set; }
 
         // angular speed in radians per second
-        public double AngularSpeed { get; set; }
+        public double AngularSpeed => baseAngularSpeed * (Circle.baseRadious / Radious);
 
-        // logical index / number this circle represents (1-based)
-        public int Index { get; set; }
+        // number this circle represents (1-based)
+        public int Number { get; set; }
 
         // whether this number has been marked prime visually
         public bool IsPrimeVisual { get; set; } = false;
 
-        public Circle(double radious, int index = 1)
+        public Circle(int number = 1)
         {
-            Radious = radious;
-            Index = index;
+            Radious = Circle.baseRadious * number;
+            Number = number;
 
             Shape = new Ellipse
             {
-                Width = radious * 2,
-                Height = radious * 2,
-                Stroke = Brushes.Gray,
+                Width = Radious * 2,
+                Height = Radious * 2,
+                Stroke = Brushes.DimGray,
                 StrokeThickness = 1.5
             };
 
@@ -40,20 +43,20 @@ namespace PrimesWithCircles.Models
             {
                 Width = 8,
                 Height = 8,
-                Fill = Brushes.White,
+                Fill = Brushes.OrangeRed,
                 Stroke = Brushes.Black,
                 StrokeThickness = 1
             };
 
             Trail = new Polyline
             {
-                Stroke = Brushes.LightGray,
-                StrokeThickness = 1,
-                Opacity = 0.6
+                Stroke = Brushes.Red,
+                StrokeThickness = 2,
+                Opacity = 0.5
             };
 
             // start at top: -π/2
-            Angle = -System.Math.PI / 2;
+            Angle = -Math.PI / 2;
         }
     }
 }

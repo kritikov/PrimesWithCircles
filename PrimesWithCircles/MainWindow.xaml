@@ -12,28 +12,19 @@
             <TextBlock Text="Controls" FontWeight="Bold" FontSize="16" Margin="0,0,0,8"/>
             <CheckBox x:Name="AutoModeCheck" Content="Auto mode" IsChecked="True" Margin="0,0,0,6"/>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Button x:Name="StartBtn" Content="Start" Click="StartBtn_Click" Width="70" Margin="0,0,6,0"/>
-                <Button x:Name="StopBtn" Content="Stop" Click="StopBtn_Click" Width="70" Margin="0,0,6,0"/>
-                <Button x:Name="StepButton" Content="Step" Click="StepButton_Click" Width="70"/>
+                <Button x:Name="RotateButton" Content="Rotate" Click="RotateButton_Click" Width="70"/>
+                <Button x:Name="PauseBtn" Content="Pause" Click="PauseBtn_Click" Width="70"/>
+                <Button Content="Reset" Click="ResetBtn_Click" Width="70"/>
+
             </StackPanel>
 
             <TextBlock Text="Speed" Margin="0,6,0,0"/>
-            <Slider x:Name="SpeedSlider" Minimum="0.02" Maximum="1.0" Value="0.5" TickFrequency="0.02" ValueChanged="SpeedSlider_ValueChanged"/>
-
-            <Button Content="Add circle" Click="AddCircleBtn_Click" Margin="0,8,0,0"/>
-            <Button Content="Compute primes (fast sieve)" Click="ComputePrimesBtn_Click" Margin="0,6,0,0"/>
-            <Button Content="Clear and reset" Click="ResetBtn_Click" Margin="0,6,0,0"/>
+            <Slider x:Name="SpeedSlider" Minimum="0.02" Maximum="2.0" Value="1" TickFrequency="0.02" ValueChanged="SpeedSlider_ValueChanged"/>
 
             <TextBlock Text="Lap counter" Margin="0,12,0,0"/>
             <TextBlock x:Name="LapCounterText" FontSize="28" FontWeight="Bold" Text="0" Margin="0,6,0,0"/>
-
-            <TextBlock Text="Notes" FontWeight="Bold" Margin="0,12,0,0"/>
-            <TextBlock TextWrapping="Wrap" FontSize="12">
-                Visual mode: animation shows divisibility as synchronous laps.
-                Fast sieve: computes primes instantly and colors circles.
-            </TextBlock>
         </StackPanel>
 
-        <Canvas x:Name="MainCanvas" Grid.Column="1" Background="White"/>
+        <Canvas x:Name="RotationCanvas" Grid.Column="1" Background="White"/>
     </Grid>
 </Window>
