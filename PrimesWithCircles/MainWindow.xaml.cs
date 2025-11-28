@@ -1,155 +1,232 @@
 ﻿using PrimesWithCircles.Models;
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace PrimesWithCircles
 {
     public partial class MainWindow : Window
     {
-        private List<Circle> circles = new List<Circle>();
-        private double rotationSpeed = 0.1;
-        private double firstRadius = 10;
+        private readonly List<Circle> circles = [];
         private Point screenCenter;
-
-
         private int lapCounter = 2;
-        const double finishLine = 3 * Math.PI / 2;
-        private readonly DispatcherTimer timer = new();
+        private const double finishLine = 3 * Math.PI / 2;
 
-        private bool isStepping = false;
-        private double targetAngle;
-        private double startAngle;
-
+        // rendering
+        private bool isRotating = false;
+        private DateTime lastRenderTime;
 
         public MainWindow()
         {
             InitializeComponent();
             Loaded += OnLoaded;
+            RotationCanvas.SizeChanged += OnCanvasSizeChanged;
         }
 
+        #region EVENTS
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            screenCenter = new Point(MainCanvas.ActualWidth / 2, MainCanvas.ActualHeight / 2);
+            ResetData();
+        }
 
-            AddCircle(firstRadius);
-            AddCircle(firstRadius * 2);
+        private void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            screenCenter = new Point(RotationCanvas.ActualWidth / 2, RotationCanvas.ActualHeight / 2);
 
-            timer.Interval = TimeSpan.FromMilliseconds(16);
-            timer.Tick += OnTick;
+            // ανακεντράρουμε ΟΛΟΥΣ τους κύκλους
+            foreach (var c in circles)
+            {
+                c.Trail.Points.Clear();
+                CenterCircle(c);
+                PositionPointer(c);
+            }
+        }
+
+        private void OnRendering(object? sender, EventArgs e)
+        {
+            DateTime now = DateTime.UtcNow;
+            double elapsedSec = (now - lastRenderTime).TotalSeconds;
+            lastRenderTime = now;
+            RotateCircles(elapsedSec);
+        }
+
+        private void StartBtn_Click(object sender, RoutedEventArgs e)
+        {
+            StartRotation();
+        }
+
+        private void PauseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            StopRotation();
+        }
+
+        private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Circle.baseAngularSpeed = Math.PI * e.NewValue;
+        }
+
+        private void ResetBtn_Click(object sender, RoutedEventArgs e)
+        {
+            StopRotation();
+            ResetData();
+        }
+
+        private void RotateButton_Click(object sender, RoutedEventArgs e)
+        {
+            // if not allready rotating, start rotating
+            if (!isRotating)
+                StartRotation();
         }
 
 
+        #endregion
+
+
+
+        #region METHODS
+
         /// <summary>
-        /// Add a circle to the list
+        /// Initializes the screen and sets up the initial circles and lap counter for the rotation canvas.
         /// </summary>
-        private void AddCircle(double radious)
+        private void ResetData()
         {
-            var circle = new Circle(radious);
+            circles.Clear();
+            RotationCanvas.Children.Clear();
+
+            // initial two circles
+            AddCircle(1);
+            AddCircle(2);
+
+            lapCounter = 2;
+            LapCounterText.Text = lapCounter.ToString();
+        }
+
+        /// <summary>
+        ///  Add a new circle with given number.
+        /// </summary>
+        private void AddCircle(int number)
+        {
+            var circle = new Circle(number);
+
+            // add the circle to the list for looping purposes
             circles.Add(circle);
 
-            MainCanvas.Children.Add(circle.Shape);
-            MainCanvas.Children.Add(circle.Pointer);
+            // add the shapes that will be rotated in the canvas
+            RotationCanvas.Children.Add(circle.Trail);
+            RotationCanvas.Children.Add(circle.Shape);
+            RotationCanvas.Children.Add(circle.Pointer);
 
             CenterCircle(circle);
             PositionPointer(circle);
         }
 
         /// <summary>
-        ///  Position a circle in the center of the screen
+        /// Center the circle in the canvas.
         /// </summary>
         private void CenterCircle(Circle circle)
         {
-            // position the circle in the center of the screen
+            // TODO: center in canvas and not in screen
             Canvas.SetLeft(circle.Shape, screenCenter.X - circle.Radious);
             Canvas.SetTop(circle.Shape, screenCenter.Y - circle.Radious);
-
         }
 
         /// <summary>
-        ///  Position the pointer of a circle to a specific angle
+        /// Position the pointer of the circle according to its angle in the canvas.
         /// </summary>
         private void PositionPointer(Circle circle)
         {
-            // position the pointer on top of the circle
-            double x1 = screenCenter.X + circle.Radious * Math.Cos(circle.Angle);
-            double y1 = screenCenter.Y + circle.Radious * Math.Sin(circle.Angle);
-            Canvas.SetLeft(circle.Pointer, x1 - circle.Pointer.Width / 2);
-            Canvas.SetTop(circle.Pointer, y1 - circle.Pointer.Height / 2);
+            // TODO: center in canvas and not in screen
+            double x = screenCenter.X + circle.Radious * Math.Cos(circle.Angle);
+            double y = screenCenter.Y + circle.Radious * Math.Sin(circle.Angle);
+
+            Canvas.SetLeft(circle.Pointer, x - circle.Pointer.Width / 2);
+            Canvas.SetTop(circle.Pointer, y - circle.Pointer.Height / 2);
+
+            // trail: append a point
+            if (circle.Trail != null)
+            {
+                var pts = circle.Trail.Points;
+                pts.Add(new Point(x, y));
+                if (pts.Count > 10) // cap trail length
+                    pts.RemoveAt(0);
+            }
         }
 
         /// <summary>
-        ///  Rotate all circles on each timer tick
+        /// Start the rotation by subscribing to the rendering event.
         /// </summary>
-        private void OnTick(object sender, EventArgs e)
+        private void StartRotation()
         {
-            RotateCircles();
+            if (isRotating) return;
+            lastRenderTime = DateTime.UtcNow;
+            CompositionTarget.Rendering += OnRendering;
+            isRotating = true;
         }
 
         /// <summary>
-        /// Rotate all the circles
+        /// Stop the rotation by unsubscribing from the rendering event.
         /// </summary>
-        private void RotateCircles()
+        private void StopRotation()
         {
-            bool firstCircleCompletedLap = false;
-            bool someOtherCircleCompletedLap = false;
+            if (!isRotating) return;
+            CompositionTarget.Rendering -= OnRendering;
+            isRotating = false;
+        }
 
-            // foreach: περιστροφή όλων
+        /// <summary>
+        /// Rotate all circles for elapsedSec seconds. Stops and handles lap logic for first circle.
+        /// </summary>
+        private void RotateCircles(double elapsedSec)
+        {
+            bool firstCompleted = false;
+            bool someOtherCompleted = false;
+
             for (int i = 0; i < circles.Count; i++)
             {
-                bool lapCompleted = RotateCircle(circles[i]);
+                var c = circles[i];
+                bool lap = RotateCircle(c, elapsedSec);
 
-                // ΜΟΝΟ ο πρώτος μάς ενδιαφέρει
-                if (i == 0 && lapCompleted)
-                    firstCircleCompletedLap = true;
-                else if (lapCompleted)
-                    someOtherCircleCompletedLap = true;
+                if (i == 0 && lap) firstCompleted = true;
+                else if (lap) someOtherCompleted = true;
             }
 
-            // if the first circle completed a lap, stop the timer
-            if (firstCircleCompletedLap)
+            if (firstCompleted)
             {
-                timer.Stop();
+                if (AutoModeCheck.IsChecked != true)
+                    StopRotation();
+
                 lapCounter++;
                 LapCounterText.Text = lapCounter.ToString();
 
-                // if no other circle completed a lap, add a new circle
-                if (!someOtherCircleCompletedLap)
+                if (!someOtherCompleted)
                 {
-                    AddCircle(firstRadius * (lapCounter));
+                    // new circle for prime
+                    AddCircle(lapCounter);
                 }
             }
         }
 
         /// <summary>
-        /// Rotate a circle
+        /// Rotate individual circle for elapsedSec seconds. Returns true if that circle completed a lap (crossed finishLine).
         /// </summary>
-        private bool RotateCircle(Circle circle)
+        private bool RotateCircle(Circle circle, double elapsedSec)
         {
             double prev = circle.Angle;
+            // angle += ω * dt
+            circle.Angle += circle.AngularSpeed * elapsedSec;
 
-            // increment
-            circle.Angle += rotationSpeed / (circle.Radious / firstRadius);
+            // detect crossing 3π/2 relative to starting at -π/2
+            bool completed = prev < finishLine && circle.Angle >= finishLine;
 
-            // detect lap BEFORE wrap
-            bool completedLap = circle.Angle >= (3 * Math.PI / 2);
-
-            if (completedLap)
-                circle.Angle -= Math.PI * 2;
+            // wrap to [0, 2π)
+            if (circle.Angle >= 2 * Math.PI)
+                circle.Angle -= 2 * Math.PI;
 
             PositionPointer(circle);
-
-            return completedLap;
+            return completed;
         }
 
-
-        // Called when user clicks "Step"
-        private void StepButton_Click(object sender, RoutedEventArgs e)
-        {
-            timer.Start();
-        }
+        #endregion
+        
     }
 }

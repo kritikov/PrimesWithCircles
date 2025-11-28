@@ -1,37 +1,62 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace PrimesWithCircles.Models
 {
-    internal class Circle
+    public class Circle
     {
-        internal Ellipse Pointer;
-        internal double Radious;
-        internal Ellipse Shape;
-        internal double Angle = -Math.PI / 2;
+        public static double baseRadious = 30.0;
+        public static double baseAngularSpeed = Math.PI;
 
-        public Circle(double radious) { 
-            Radious = radious;
+        public double Radious { get; }
+        public Ellipse Shape { get; }
+        public Ellipse Pointer { get; }
+        public Polyline Trail { get; }
 
-            Pointer = new()
-            {
-                Width = 6,
-                Height = 6,
-                Fill = Brushes.Red
-            };
+        // Angle in radians, canonicalized to [0, 2π)
+        public double Angle { get; set; }
+
+        // angular speed in radians per second
+        public double AngularSpeed => baseAngularSpeed * (Circle.baseRadious / Radious);
+
+        // number this circle represents (1-based)
+        public int Number { get; set; }
+
+        // whether this number has been marked prime visually
+        public bool IsPrimeVisual { get; set; } = false;
+
+        public Circle(int number = 1)
+        {
+            Radious = Circle.baseRadious * number;
+            Number = number;
 
             Shape = new Ellipse
             {
                 Width = Radious * 2,
                 Height = Radious * 2,
-                Stroke = Brushes.Gray,
-                StrokeThickness = 2,
+                Stroke = Brushes.DimGray,
+                StrokeThickness = 1.5
             };
+
+            Pointer = new Ellipse
+            {
+                Width = 8,
+                Height = 8,
+                Fill = Brushes.OrangeRed,
+                Stroke = Brushes.Black,
+                StrokeThickness = 1
+            };
+
+            Trail = new Polyline
+            {
+                Stroke = Brushes.Red,
+                StrokeThickness = 2,
+                Opacity = 0.5
+            };
+
+            // start at top: -π/2
+            Angle = -Math.PI / 2;
         }
     }
 }
