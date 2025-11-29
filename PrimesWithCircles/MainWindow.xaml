@@ -25,6 +25,13 @@
             <TextBlock x:Name="LapCounterText" FontSize="28" FontWeight="Bold" Text="0" Margin="0,6,0,0"/>
         </StackPanel>
 
-        <Canvas x:Name="RotationCanvas" Grid.Column="1" Background="White"/>
+        <Grid Grid.Column="1" >
+            <Canvas x:Name="RotationCanvas">
+                <Canvas.LayoutTransform>
+                    <ScaleTransform x:Name="ZoomTransform" ScaleX="1" ScaleY="1"/>
+                </Canvas.LayoutTransform>
+            </Canvas>
+        </Grid>
+        
     </Grid>
 </Window>

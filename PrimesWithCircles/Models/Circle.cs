@@ -17,14 +17,15 @@ namespace PrimesWithCircles.Models
         // Angle in radians, canonicalized to [0, 2π)
         public double Angle { get; set; }
 
+        // accumulated angle in radians (not canonicalized)
+        public double AccumulatedAngle { get; set; }
+
         // angular speed in radians per second
         public double AngularSpeed => baseAngularSpeed * (Circle.baseRadious / Radious);
 
         // number this circle represents (1-based)
         public int Number { get; set; }
 
-        // whether this number has been marked prime visually
-        public bool IsPrimeVisual { get; set; } = false;
 
         public Circle(int number = 1)
         {
@@ -57,6 +58,8 @@ namespace PrimesWithCircles.Models
 
             // start at top: -π/2
             Angle = -Math.PI / 2;
+
+            AccumulatedAngle = 0.0;
         }
     }
 }

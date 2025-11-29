@@ -40,6 +40,8 @@ namespace PrimesWithCircles
                 CenterCircle(c);
                 PositionPointer(c);
             }
+
+            AutoAdjustZoom();
         }
 
         private void OnRendering(object? sender, EventArgs e)
@@ -118,6 +120,7 @@ namespace PrimesWithCircles
 
             CenterCircle(circle);
             PositionPointer(circle);
+            AutoAdjustZoom();
         }
 
         /// <summary>
@@ -211,22 +214,54 @@ namespace PrimesWithCircles
         /// </summary>
         private bool RotateCircle(Circle circle, double elapsedSec)
         {
-            double prev = circle.Angle;
-            // angle += ω * dt
-            circle.Angle += circle.AngularSpeed * elapsedSec;
+            double delta = circle.AngularSpeed * elapsedSec;
 
-            // detect crossing 3π/2 relative to starting at -π/2
-            bool completed = prev < finishLine && circle.Angle >= finishLine;
+            circle.Angle += delta;
+            circle.AccumulatedAngle += delta;
 
-            // wrap to [0, 2π)
+            // φυσικό wrap του angle (καθαρά για το UI)
             if (circle.Angle >= 2 * Math.PI)
                 circle.Angle -= 2 * Math.PI;
 
             PositionPointer(circle);
-            return completed;
+
+            // έλεγξε αν ολοκληρώθηκε κύκλος
+            if (circle.AccumulatedAngle >= 2 * Math.PI)
+            {
+                circle.AccumulatedAngle -= 2 * Math.PI;
+                return true;
+            }
+
+            return false;
+        }
+
+        public void SetZoom(double scale)
+        {
+            if (scale < 0.05) scale = 0.05; // μη γίνει και pixel dust
+            ZoomTransform.ScaleX = scale;
+            ZoomTransform.ScaleY = scale;
+        }
+
+        public void AutoAdjustZoom()
+        {
+            if (circles.Count == 0) return;
+
+            double maxRadius = circles[circles.Count - 1].Radious;
+            double neededSize = maxRadius * 2 + 200; // buffer
+
+            double scaleX = RotationCanvas.ActualWidth / neededSize;
+            double scaleY = RotationCanvas.ActualHeight / neededSize;
+
+            double newScale = Math.Min(scaleX, scaleY);
+
+            // ---- ONLY ZOOM OUT ----
+            double currentScale = ZoomTransform.ScaleX;
+
+            if (newScale < currentScale)
+                SetZoom(newScale);
         }
 
         #endregion
-        
+
     }
 }
