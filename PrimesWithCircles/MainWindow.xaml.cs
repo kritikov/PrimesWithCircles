@@ -7,7 +7,7 @@ namespace PrimesWithCircles
 {
     public partial class MainWindow : Window
     {
-        private readonly List<Circle> circles = [];
+        //private readonly List<Circle> circles = [];
         private Point screenCenter;
         private int lapCounter = 2;
         private const double finishLine = 3 * Math.PI / 2;
