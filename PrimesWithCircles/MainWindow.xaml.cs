@@ -7,7 +7,7 @@ namespace PrimesWithCircles
 {
     public partial class MainWindow : Window
     {
-        //private readonly List<Circle> circles = [];
+        private readonly List<Circle> circles = [];
         private Point screenCenter;
         private int lapCounter = 2;
         private const double finishLine = 3 * Math.PI / 2;
@@ -184,15 +184,18 @@ namespace PrimesWithCircles
             bool firstCompleted = false;
             bool someOtherCompleted = false;
 
-            for (int i = 0; i < circles.Count; i++)
-            {
-                var c = circles[i];
-                bool lap = RotateCircle(c, elapsedSec);
-
-                if (i == 0 && lap) firstCompleted = true;
-                else if (lap) someOtherCompleted = true;
+            // Περιστρέφουμε ΟΛΟΥΣ όπως πάντα
+            foreach (var circle in circles) {
+                bool lapCompleted = RotateCircle(circle, elapsedSec, firstCompleted);
+                if (circle.Number == 1 && lapCompleted)
+                    firstCompleted = true;
+                
+                if (circle.Number > 1 && firstCompleted && lapCompleted)
+                    someOtherCompleted = true;
             }
 
+
+            // Αν ο πρώτος έκανε κύκλο → προχωράμε την λογική
             if (firstCompleted)
             {
                 if (AutoModeCheck.IsChecked != true)
@@ -201,39 +204,52 @@ namespace PrimesWithCircles
                 lapCounter++;
                 LapCounterText.Text = lapCounter.ToString();
 
+                // Prime detection
                 if (!someOtherCompleted)
-                {
-                    // new circle for prime
                     AddCircle(lapCounter);
-                }
             }
         }
+
 
         /// <summary>
         /// Rotate individual circle for elapsedSec seconds. Returns true if that circle completed a lap (crossed finishLine).
         /// </summary>
-        private bool RotateCircle(Circle circle, double elapsedSec)
+        private bool RotateCircle(Circle circle, double elapsedSec, bool firstLapCompleted)
         {
             double delta = circle.AngularSpeed * elapsedSec;
 
             circle.Angle += delta;
             circle.AccumulatedAngle += delta;
 
-            // φυσικό wrap του angle (καθαρά για το UI)
             if (circle.Angle >= 2 * Math.PI)
                 circle.Angle -= 2 * Math.PI;
 
             PositionPointer(circle);
 
-            // έλεγξε αν ολοκληρώθηκε κύκλος
             if (circle.AccumulatedAngle >= 2 * Math.PI)
             {
                 circle.AccumulatedAngle -= 2 * Math.PI;
-                return true;
+
+                if (circle.Number == 1)
+                    return true;
+            }
+
+            if (firstLapCompleted)
+            {
+                circle.LapCounter++;
+
+                if (circle.LapCounter == circle.Number)
+                {
+                    circle.LapCounter = 0;
+                    circle.Angle = -Math.PI / 2;
+                    circle.AccumulatedAngle = 0.0;
+                    return true;
+                }
             }
 
             return false;
         }
+
 
         public void SetZoom(double scale)
         {

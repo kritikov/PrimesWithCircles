@@ -13,6 +13,7 @@ namespace PrimesWithCircles.Models
         public Ellipse Shape { get; }
         public Ellipse Pointer { get; }
         public Polyline Trail { get; }
+        public int LapCounter { get; set; } = 0;  // μετρά πόσες φορές πέρασε ο πρώτος
 
         // Angle in radians, canonicalized to [0, 2π)
         public double Angle { get; set; }
