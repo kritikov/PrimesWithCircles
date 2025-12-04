@@ -1,33 +1,69 @@
 ﻿using PrimesWithCircles.Models;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace PrimesWithCircles
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+
         private readonly List<Circle> circles = [];
         private Point screenCenter;
-        private int lapCounter = 2;
-        private const double finishLine = 3 * Math.PI / 2;
-
-        // rendering
         private bool isRotating = false;
         private DateTime lastRenderTime;
+
+        private int lapCounter = 2;
+        public int LapCounter
+        {
+            get => lapCounter;
+            set
+            {
+                if (lapCounter != value)
+                {
+                    lapCounter = value;
+                    OnPropertyChanged(nameof(LapCounter));
+                }
+            }
+        }
+
+        private string primes = "2";
+        public string Primes
+        {
+            get => primes;
+            set
+            {
+                if (primes != value)
+                {
+                    primes = value;
+                    OnPropertyChanged(nameof(Primes));
+                }
+            }
+        }
+
 
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this;
+
             Loaded += OnLoaded;
             RotationCanvas.SizeChanged += OnCanvasSizeChanged;
         }
 
         #region EVENTS
+
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             ResetData();
         }
+
+        protected void OnPropertyChanged(string name)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
 
         private void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -99,8 +135,7 @@ namespace PrimesWithCircles
             AddCircle(1);
             AddCircle(2);
 
-            lapCounter = 2;
-            LapCounterText.Text = lapCounter.ToString();
+            LapCounter = 2;
         }
 
         /// <summary>
@@ -128,7 +163,6 @@ namespace PrimesWithCircles
         /// </summary>
         private void CenterCircle(Circle circle)
         {
-            // TODO: center in canvas and not in screen
             Canvas.SetLeft(circle.Shape, screenCenter.X - circle.Radious);
             Canvas.SetTop(circle.Shape, screenCenter.Y - circle.Radious);
         }
@@ -138,7 +172,6 @@ namespace PrimesWithCircles
         /// </summary>
         private void PositionPointer(Circle circle)
         {
-            // TODO: center in canvas and not in screen
             double x = screenCenter.X + circle.Radious * Math.Cos(circle.Angle);
             double y = screenCenter.Y + circle.Radious * Math.Sin(circle.Angle);
 
@@ -201,15 +234,20 @@ namespace PrimesWithCircles
                 if (AutoModeCheck.IsChecked != true)
                     StopRotation();
 
-                lapCounter++;
-                LapCounterText.Text = lapCounter.ToString();
+                LapCounter++;
 
                 // Prime detection
                 if (!someOtherCompleted)
-                    AddCircle(lapCounter);
+                    addPrime(LapCounter);
             }
         }
 
+
+        private void addPrime(int number) {
+
+            AddCircle(LapCounter);
+            Primes += number.ToString() + " ";
+        }
 
         /// <summary>
         /// Rotate individual circle for elapsedSec seconds. Returns true if that circle completed a lap (crossed finishLine).

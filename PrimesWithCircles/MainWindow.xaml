@@ -22,7 +22,14 @@
             <Slider x:Name="SpeedSlider" Minimum="0.02" Maximum="2.0" Value="1" TickFrequency="0.02" ValueChanged="SpeedSlider_ValueChanged"/>
 
             <TextBlock Text="Lap counter" Margin="0,12,0,0"/>
-            <TextBlock x:Name="LapCounterText" FontSize="28" FontWeight="Bold" Text="0" Margin="0,6,0,0"/>
+            <TextBlock FontSize="28" FontWeight="Bold" Text="{Binding LapCounter}" Margin="0,6,0,0"/>
+
+            <TextBlock Text="Primes" Margin="0,12,0,0"/>
+            <TextBlock Text="{Binding Primes}" TextWrapping="Wrap" Height="132" />
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                
+            </ScrollViewer>
+
         </StackPanel>
 
         <Grid Grid.Column="1" >
