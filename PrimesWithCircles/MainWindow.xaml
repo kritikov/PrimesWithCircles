@@ -33,7 +33,7 @@
         </StackPanel>
 
         <Grid Grid.Column="1" >
-            <Canvas x:Name="RotationCanvas">
+            <Canvas x:Name="RotationCanvas" Background="Black">
                 <Canvas.LayoutTransform>
                     <ScaleTransform x:Name="ZoomTransform" ScaleX="1" ScaleY="1"/>
                 </Canvas.LayoutTransform>

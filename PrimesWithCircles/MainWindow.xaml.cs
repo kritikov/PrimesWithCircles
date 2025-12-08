@@ -12,7 +12,7 @@ namespace PrimesWithCircles
 
 
         private readonly List<Circle> circles = [];
-        private Point screenCenter;
+        private Point centerOfCanvas;
         private bool isRotating = false;
         private DateTime lastRenderTime;
 
@@ -54,6 +54,7 @@ namespace PrimesWithCircles
             RotationCanvas.SizeChanged += OnCanvasSizeChanged;
         }
 
+
         #region EVENTS
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -67,19 +68,13 @@ namespace PrimesWithCircles
 
         private void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            screenCenter = new Point(RotationCanvas.ActualWidth / 2, RotationCanvas.ActualHeight / 2);
+            centerOfCanvas = new Point(RotationCanvas.ActualWidth / 2, RotationCanvas.ActualHeight / 2);
 
-            // ανακεντράρουμε ΟΛΟΥΣ τους κύκλους
-            foreach (var c in circles)
-            {
-                c.Trail.Points.Clear();
-                CenterCircle(c);
-                PositionPointer(c);
-            }
-
-            AutoAdjustZoom();
+            CenterAllCircles();
+            //AutoAdjustZoom();
         }
 
+        
         private void OnRendering(object? sender, EventArgs e)
         {
             DateTime now = DateTime.UtcNow;
@@ -107,6 +102,7 @@ namespace PrimesWithCircles
         {
             StopRotation();
             ResetData();
+            ResetZoom();
         }
 
         private void RotateButton_Click(object sender, RoutedEventArgs e)
@@ -136,6 +132,7 @@ namespace PrimesWithCircles
             AddCircle(2);
 
             LapCounter = 2;
+            Primes = "2";
         }
 
         /// <summary>
@@ -163,8 +160,21 @@ namespace PrimesWithCircles
         /// </summary>
         private void CenterCircle(Circle circle)
         {
-            Canvas.SetLeft(circle.Shape, screenCenter.X - circle.Radious);
-            Canvas.SetTop(circle.Shape, screenCenter.Y - circle.Radious);
+            Canvas.SetLeft(circle.Shape, centerOfCanvas.X - circle.Radious);
+            Canvas.SetTop(circle.Shape, centerOfCanvas.Y - circle.Radious);
+        }
+
+        /// <summary>
+        /// ανακεντράρουμε ΟΛΟΥΣ τους κύκλους
+        /// </summary>
+        private void CenterAllCircles()
+        {
+            foreach (var circle in circles)
+            {
+                circle.Trail.Points.Clear();
+                CenterCircle(circle);
+                PositionPointer(circle);
+            }
         }
 
         /// <summary>
@@ -172,8 +182,8 @@ namespace PrimesWithCircles
         /// </summary>
         private void PositionPointer(Circle circle)
         {
-            double x = screenCenter.X + circle.Radious * Math.Cos(circle.Angle);
-            double y = screenCenter.Y + circle.Radious * Math.Sin(circle.Angle);
+            double x = centerOfCanvas.X + circle.Radious * Math.Cos(circle.Angle);
+            double y = centerOfCanvas.Y + circle.Radious * Math.Sin(circle.Angle);
 
             Canvas.SetLeft(circle.Pointer, x - circle.Pointer.Width / 2);
             Canvas.SetTop(circle.Pointer, y - circle.Pointer.Height / 2);
@@ -238,14 +248,20 @@ namespace PrimesWithCircles
 
                 // Prime detection
                 if (!someOtherCompleted)
-                    addPrime(LapCounter);
+                    AddPrime(LapCounter);
             }
         }
 
-
-        private void addPrime(int number) {
+        /// <summary>
+        /// Add a new prime to the list of primes
+        /// </summary>
+        private void AddPrime(int number) {
 
             AddCircle(LapCounter);
+
+            if (Primes.Length > 0)
+                Primes += ", ";
+
             Primes += number.ToString() + " ";
         }
 
@@ -289,9 +305,16 @@ namespace PrimesWithCircles
         }
 
 
+
+        private void ResetZoom()
+        {
+            SetZoom(1);
+        }
+
+
         public void SetZoom(double scale)
         {
-            if (scale < 0.05) scale = 0.05; // μη γίνει και pixel dust
+            //if (scale < 0.05) scale = 0.05; // μη γίνει και pixel dust
             ZoomTransform.ScaleX = scale;
             ZoomTransform.ScaleY = scale;
         }
@@ -303,16 +326,17 @@ namespace PrimesWithCircles
             double maxRadius = circles[circles.Count - 1].Radious;
             double neededSize = maxRadius * 2 + 200; // buffer
 
-            double scaleX = RotationCanvas.ActualWidth / neededSize;
-            double scaleY = RotationCanvas.ActualHeight / neededSize;
+            double actualWidthWithoutScale = RotationCanvas.ActualWidth * ZoomTransform.ScaleX;
+            double actualHeightWithoutScale = RotationCanvas.ActualHeight * ZoomTransform.ScaleX;
+
+            double scaleX = actualWidthWithoutScale / neededSize;
+            double scaleY = actualHeightWithoutScale / neededSize;
 
             double newScale = Math.Min(scaleX, scaleY);
 
-            // ---- ONLY ZOOM OUT ----
-            double currentScale = ZoomTransform.ScaleX;
+            if (newScale < 1)
+                SetZoom(newScale); 
 
-            if (newScale < currentScale)
-                SetZoom(newScale);
         }
 
         #endregion

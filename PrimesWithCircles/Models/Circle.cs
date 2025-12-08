@@ -45,7 +45,7 @@ namespace PrimesWithCircles.Models
             {
                 Width = 8,
                 Height = 8,
-                Fill = Brushes.OrangeRed,
+                Fill = Brushes.Yellow,
                 Stroke = Brushes.Black,
                 StrokeThickness = 1
             };
