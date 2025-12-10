@@ -11,9 +11,8 @@ namespace PrimesWithCircles
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private readonly Circles circles;
+        public Circles Circles { get; set; }
         private bool isRotating = false;
-        private DateTime lastRenderTime;
 
         private int lapCounter = 2;
         public int LapCounter
@@ -29,7 +28,35 @@ namespace PrimesWithCircles
             }
         }
 
-        private string primes = "2";
+        private bool isReseted = true;
+        public bool IsReseted
+        {
+            get => isReseted;
+            set
+            {
+                if (isReseted != value)
+                {
+                    isReseted = value;
+                    OnPropertyChanged(nameof(IsReseted));
+                }
+            }
+        }
+
+        private bool displayPrimes = true;
+        public bool DisplayPrimes
+        {
+            get => displayPrimes;
+            set
+            {
+                if (displayPrimes != value)
+                {
+                    displayPrimes = value;
+                    OnPropertyChanged(nameof(DisplayPrimes));
+                }
+            }
+        }
+
+        private string primes;
         public string Primes
         {
             get => primes;
@@ -39,6 +66,7 @@ namespace PrimesWithCircles
                 {
                     primes = value;
                     OnPropertyChanged(nameof(Primes));
+                    PrimesScroll?.ScrollToEnd();
                 }
             }
         }
@@ -48,7 +76,7 @@ namespace PrimesWithCircles
         {
             InitializeComponent();
             DataContext = this;
-            circles = new Circles(RotationCanvas);
+            Circles = new Circles(RotationCanvas);
 
             Loaded += OnLoaded;
             RotationCanvas.SizeChanged += OnCanvasSizeChanged;
@@ -68,7 +96,7 @@ namespace PrimesWithCircles
 
         private void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            circles.CenterAllCircles();
+            Circles.CenterAllCircles();
         }
 
         
@@ -77,21 +105,19 @@ namespace PrimesWithCircles
             var rotateStep = 0.01;
             RotateCircles(rotateStep);
         }
-
-        private void StartBtn_Click(object sender, RoutedEventArgs e)
+        private void RotateButton_Click(object sender, RoutedEventArgs e)
         {
-            StartRotation();
+            // if not allready rotating, start rotating
+            if (!isRotating)
+            {
+                IsReseted = false;
+                StartRotation();
+            }
         }
 
         private void PauseBtn_Click(object sender, RoutedEventArgs e)
         {
             StopRotation();
-        }
-
-        private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (circles != null) 
-                circles.BaseAngularSpeed = Math.PI * e.NewValue;
         }
 
         private void ResetBtn_Click(object sender, RoutedEventArgs e)
@@ -100,14 +126,6 @@ namespace PrimesWithCircles
             ResetData();
             ResetZoom();
         }
-
-        private void RotateButton_Click(object sender, RoutedEventArgs e)
-        {
-            // if not allready rotating, start rotating
-            if (!isRotating)
-                StartRotation();
-        }
-
 
         #endregion
 
@@ -120,14 +138,14 @@ namespace PrimesWithCircles
         /// </summary>
         private void ResetData()
         {
-            circles.Clear();
+            Circles.Clear();
 
-            // initial two circles
             AddCircle(1);
             AddCircle(2);
 
             LapCounter = 2;
-            Primes = "2";
+            Primes = "primes: 2";
+            IsReseted = true;
         }
 
         /// <summary>
@@ -135,7 +153,7 @@ namespace PrimesWithCircles
         /// </summary>
         private void AddCircle(int number)
         {
-            circles.Add(number);
+            Circles.Add(number);
 
             AutoAdjustZoom();
         }
@@ -146,7 +164,6 @@ namespace PrimesWithCircles
         private void StartRotation()
         {
             if (isRotating) return;
-            lastRenderTime = DateTime.UtcNow;
             CompositionTarget.Rendering += OnRendering;
             isRotating = true;
         }
@@ -166,7 +183,7 @@ namespace PrimesWithCircles
         /// </summary>
         private void RotateCircles(double elapsedSec)
         {
-            var (FirstCompleted, SomeOtherCompleted) = circles.RotateCircles(elapsedSec);
+            var (FirstCompleted, SomeOtherCompleted) = Circles.RotateCircles(elapsedSec);
 
 
             // if the first circle completed a lap
@@ -194,7 +211,7 @@ namespace PrimesWithCircles
             if (Primes.Length > 0)
                 Primes += ", ";
 
-            Primes += number.ToString() + " ";
+            Primes += number.ToString();
         }
 
 
@@ -210,7 +227,6 @@ namespace PrimesWithCircles
         /// Zoom with animation
         /// </summary>
         /// <param name="targetScale"></param>
-
         private void Zoom(double targetScale)
         {
             DoubleAnimation anim = new()
@@ -229,10 +245,10 @@ namespace PrimesWithCircles
         /// </summary>
         public void AutoAdjustZoom()
         {
-            if (circles.List.Count == 0) return;
+            if (Circles.List.Count == 0) return;
 
-            double maxRadius = circles.GetMaxRadious();
-            double neededSize = maxRadius * 2 + 200; // buffer
+            double maxRadius = Circles.GetMaxRadious();
+            double neededSize = maxRadius * 2 + 100; // buffer
 
             double actualWidthWithoutScale = RotationCanvas.ActualWidth * ZoomTransform.ScaleX;
             double actualHeightWithoutScale = RotationCanvas.ActualHeight * ZoomTransform.ScaleX;
@@ -245,12 +261,13 @@ namespace PrimesWithCircles
             if (newScale < 1)
             {
                 Zoom(newScale);
-                circles.RescaleCircles(newScale);
+                Circles.RescaleCircles(newScale);
             }
 
         }
 
         #endregion
 
+        
     }
 }

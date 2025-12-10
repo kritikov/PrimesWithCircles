@@ -11,13 +11,12 @@ namespace PrimesWithCircles.Models
     public class Circle
     {
         
-        public double Radious { get; }
+        public double Radious { get; set; }
         public int Number { get; set; }
 
         private readonly double shapeStrokeThickness = 1.5;
         private readonly double trailStrokeThickness = 2;
-        private readonly double pointerWidth = 8;
-        private readonly double pointerHeight = 8;
+        private double pointerSize = 8;
         private readonly Canvas canvas;
         private readonly Ellipse shape;
         private readonly Ellipse pointer;
@@ -27,24 +26,26 @@ namespace PrimesWithCircles.Models
         private double accumulatedAngle;    // accumulated angle in radians (not canonicalized)
 
 
-        public Circle(Canvas canvas, int number, double baseRadious)
+        public Circle(Canvas canvas, int number, double baseRadious, Visibility visibility, double pointerSize)
         {
             this.canvas = canvas;
             Radious = baseRadious * number;
             Number = number;
+            this.pointerSize = pointerSize;
 
             shape = new Ellipse
             {
                 Width = Radious * 2,
                 Height = Radious * 2,
                 Stroke = Brushes.DimGray,
-                StrokeThickness = shapeStrokeThickness
+                StrokeThickness = shapeStrokeThickness,
+                Visibility = visibility
             };
 
             pointer = new Ellipse
             {
-                Width = pointerWidth,
-                Height = pointerHeight,
+                Width = this.pointerSize,
+                Height = this.pointerSize,
                 Fill = Brushes.Yellow,
                 Stroke = Brushes.Black,
                 StrokeThickness = 1
@@ -67,6 +68,34 @@ namespace PrimesWithCircles.Models
             canvas.Children.Add(pointer);
 
             Center();
+        }
+
+        public void UpdateRadious(double baseRadious)
+        {
+            Radious = baseRadious * Number;
+            shape.Width = Radious * 2;
+            shape.Height = Radious * 2;
+            Center();
+        }
+
+        public void UpdatePointerSize(double size)
+        {
+            pointerSize = size;
+            pointer.Width = pointerSize;
+            pointer.Height = pointerSize;
+            PositionPointer();
+        }
+
+        public void UpdateVisibility(bool isVisible)
+        {
+            if (isVisible)
+            {
+                shape.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                shape.Visibility = Visibility.Hidden;
+            }
         }
 
         /// <summary>
@@ -155,8 +184,8 @@ namespace PrimesWithCircles.Models
         {
             shape.StrokeThickness = shapeStrokeThickness / scale;
             trail.StrokeThickness = trailStrokeThickness / scale;
-            pointer.Width = pointerWidth / scale;
-            pointer.Height = pointerHeight / scale;
+            pointer.Width = pointerSize / scale;
+            pointer.Height = pointerSize / scale;
         }
     }
 }

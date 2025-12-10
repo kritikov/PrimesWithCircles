@@ -1,18 +1,87 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace PrimesWithCircles.Models
 {
-    public class Circles
+    public class Circles : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+        void OnPropertyChanged([CallerMemberName] string propName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+
         public List<Circle> List = [];
         public Canvas Canvas { get; }
-        public double BaseRadious = 30.0;
-        public double BaseAngularSpeed = Math.PI;
+
+        private double baseRadious = 30.0;
+        public double BaseRadious
+        {
+            get => baseRadious;
+            set
+            {
+                if (baseRadious != value)
+                {
+                    baseRadious = value;
+                    UpdateBaseRadious();
+                    OnPropertyChanged(nameof(BaseRadious));
+                }
+            }
+        }
+
+        private bool displayShapes = true;
+        public bool DisplayShapes
+        {
+            get => displayShapes;
+            set
+            {
+                if (displayShapes != value)
+                {
+                    displayShapes = value;
+                    UpdateShapesVisibility(displayShapes);
+                    OnPropertyChanged(nameof(DisplayShapes));
+                }
+            }
+        }
+
+        private double rotationSpeed = 1;
+        public double RotationSpeed
+        {
+            get => rotationSpeed;
+            set
+            {
+                if (rotationSpeed != value)
+                {
+                    rotationSpeed = value;
+                    OnPropertyChanged(nameof(RotationSpeed));
+
+                    // Και αν πρέπει να πολλαπλασιαστεί με Math.PI:
+                    baseAngularSpeed = Math.PI * value;
+                }
+            }
+        }
+
+        private double pointerSize = 8.0;
+        public double PointerSize
+        {
+            get => pointerSize;
+            set
+            {
+                if (pointerSize != value)
+                {
+                    pointerSize = value;
+                    UpdatePointerSizes(pointerSize);
+                    OnPropertyChanged(nameof(PointerSize));
+
+                }
+            }
+        }
+
+        private double baseAngularSpeed = Math.PI;
 
         public Circles(Canvas canvas)
         {
@@ -25,7 +94,8 @@ namespace PrimesWithCircles.Models
         /// </summary>
         public Circle Add(int number)
         {
-            var circle = new Circle(this.Canvas, number, BaseRadious);
+            var visibility = DisplayShapes == true ? Visibility.Visible : Visibility.Hidden;
+            var circle = new Circle(this.Canvas, number, baseRadious, visibility, PointerSize);
 
             this.List.Add(circle);
 
@@ -39,8 +109,6 @@ namespace PrimesWithCircles.Models
         {
             this.List.Clear();
             this.Canvas.Children.Clear();
-            
-
         }
 
         /// <summary>
@@ -54,6 +122,31 @@ namespace PrimesWithCircles.Models
             }
         }
 
+        public void UpdateBaseRadious()
+        {
+            foreach (var circle in List)
+            {
+                circle.UpdateRadious(baseRadious);
+            }
+        }
+
+        public void UpdatePointerSizes(double size)
+        {
+            foreach (var circle in List)
+            {
+                circle.UpdatePointerSize(size);
+            }
+        }
+
+        public void UpdateShapesVisibility(bool isVisible)
+        {
+            foreach (var circle in List)
+            {
+                circle.UpdateVisibility(isVisible);
+            }
+        }
+
+
         /// <summary>
         /// Rotate all circles for elapsedSec seconds. Stops and handles lap logic for first circle.
         /// </summary>
@@ -65,7 +158,7 @@ namespace PrimesWithCircles.Models
             // rotate all circles
             foreach (var circle in List)
             {
-                bool lapCompleted = circle.RotateCircle(rotationStep, firstCompleted, BaseRadious, BaseAngularSpeed);
+                bool lapCompleted = circle.RotateCircle(rotationStep, firstCompleted, baseRadious, baseAngularSpeed);
                 if (circle.Number == 1 && lapCompleted)
                     firstCompleted = true;
 
@@ -97,6 +190,7 @@ namespace PrimesWithCircles.Models
             {
                 circle.Rescale(currentScale);
             }
+
         }
     }
 
