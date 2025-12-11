@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Primes With Circles" Width="1000" Height="700"
+        xmlns:models="clr-namespace:PrimesWithCircles.Controls"
         xmlns:converters="clr-namespace:PrimesWithCircles.Converters"
         WindowStartupLocation="CenterScreen" Background="Black">
 
@@ -45,7 +46,7 @@
 
             <StackPanel Grid.Row="2" VerticalAlignment="Top" Background="#FFE2E2E2">
                 <StackPanel Margin="10 10 10 20"  >
-                    <CheckBox x:Name="AutoModeCheck" Content="Auto mode" IsChecked="True" Margin="0 5 0 5"/>
+                    <CheckBox Content="Auto rotation" IsChecked="{Binding AutoRotation}" Margin="0 5 0 5"/>
                     <StackPanel Orientation="Horizontal" Margin="0 5 0 5">
                         <Button x:Name="RotateButton" Content="Rotate" Click="RotateButton_Click" Width="50"/>
                         <Button x:Name="PauseBtn" Content="Pause" Click="PauseBtn_Click" Width="50"/>
@@ -53,29 +54,32 @@
                     </StackPanel>
 
                     <TextBlock Text="Rotation speed" Margin="0 5 0 5"/>
-                    <Slider x:Name="SpeedSlider" Minimum="0.1" Maximum="10.0" Value="{Binding Circles.RotationSpeed}" TickFrequency="0.02"/>
+                    <Slider Minimum="{Binding RotationSpeedMin, ElementName=RotationCanvas}"
+                            Maximum="{Binding RotationSpeedMax, ElementName=RotationCanvas}"
+                            TickFrequency="0.02"
+                            Value="{Binding RotationSpeed, ElementName=RotationCanvas}"/>
 
                     <TextBlock Text="Radious" Margin="0 5 0 5"/>
-                    <Slider x:Name="RadiousSlider" Minimum="10" Maximum="200.0" Value="{Binding Circles.BaseRadious}" TickFrequency="5" 
-                        IsEnabled="{Binding IsReseted}"/>
+                    <Slider Minimum="{Binding BaseRadiousMin, ElementName=RotationCanvas}" 
+                            Maximum="{Binding BaseRadiousMax, ElementName=RotationCanvas}" 
+                            Value="{Binding BaseRadious, ElementName=RotationCanvas}" 
+                            TickFrequency="5" 
+                            IsEnabled="{Binding IsReseted}"/>
 
                     <TextBlock Text="Pointer size" Margin="0 5 0 5"/>
-                    <Slider Minimum="5" Maximum="15" TickFrequency="1" Value="{Binding Circles.PointerSize}"/>
+                    <Slider Minimum="{Binding PointerSizeMin, ElementName=RotationCanvas}" 
+                            Maximum="{Binding PointerSizeMax, ElementName=RotationCanvas}" 
+                            TickFrequency="1" 
+                            Value="{Binding PointerSize, ElementName=RotationCanvas}"/>
 
                     <CheckBox Content="display primes" IsChecked="{Binding DisplayPrimes}" Margin="0 5 0 5"/>
-                    <CheckBox Content="display circles" IsChecked="{Binding Circles.DisplayShapes}" Margin="0 5 0 5"/>
+                    <CheckBox Content="display circles" IsChecked="{Binding DisplayShapes, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                 </StackPanel>
             </StackPanel>
         </Grid>
 
-
-
         <Grid Grid.Column="1" >
-            <Canvas x:Name="RotationCanvas" Background="Black">
-                <Canvas.LayoutTransform>
-                    <ScaleTransform x:Name="ZoomTransform" ScaleX="1" ScaleY="1"/>
-                </Canvas.LayoutTransform>
-            </Canvas>
+            <models:RotationCanvas x:Name="RotationCanvas" Background="Black"/>
         </Grid>
 
     </Grid>

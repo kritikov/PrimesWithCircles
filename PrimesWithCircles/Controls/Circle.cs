@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using static System.Formats.Asn1.AsnWriter;
 
-namespace PrimesWithCircles.Models
+namespace PrimesWithCircles.Controls
 {
     public class Circle
     {
@@ -16,22 +14,20 @@ namespace PrimesWithCircles.Models
 
         private readonly double shapeStrokeThickness = 1.5;
         private readonly double trailStrokeThickness = 2;
-        private double pointerSize = 8;
-        private readonly Canvas canvas;
+        private readonly RotationCanvas parent;
         private readonly Ellipse shape;
         private readonly Ellipse pointer;
         private readonly Polyline trail;
-        private int lapCounter = 0;
+        private int lapCounter = 0;         // helper to synchronize laps with the first one avoiding drift from rendering loop and floating-point precision limits
         private double angle;               // Angle in radians, canonicalized to [0, 2π)
         private double accumulatedAngle;    // accumulated angle in radians (not canonicalized)
 
 
-        public Circle(Canvas canvas, int number, double baseRadious, Visibility visibility, double pointerSize)
+        public Circle(RotationCanvas canvas, int number)
         {
-            this.canvas = canvas;
-            Radious = baseRadious * number;
+            this.parent = canvas;
+            Radious = parent.BaseRadious * number;
             Number = number;
-            this.pointerSize = pointerSize;
 
             shape = new Ellipse
             {
@@ -39,13 +35,13 @@ namespace PrimesWithCircles.Models
                 Height = Radious * 2,
                 Stroke = Brushes.DimGray,
                 StrokeThickness = shapeStrokeThickness,
-                Visibility = visibility
+                Visibility = parent.ShapesVisibility
             };
 
             pointer = new Ellipse
             {
-                Width = this.pointerSize,
-                Height = this.pointerSize,
+                Width = parent.PointerSize,
+                Height = parent.PointerSize,
                 Fill = Brushes.Yellow,
                 Stroke = Brushes.Black,
                 StrokeThickness = 1
@@ -70,32 +66,34 @@ namespace PrimesWithCircles.Models
             Center();
         }
 
-        public void UpdateRadious(double baseRadious)
+        /// <summary>
+        /// Set the radious of the circle according to its number and the base radious of the parent canvas.
+        /// </summary>
+        public void UpdateRadious()
         {
-            Radious = baseRadious * Number;
+            Radious = parent.BaseRadious * Number;
             shape.Width = Radious * 2;
             shape.Height = Radious * 2;
             Center();
         }
 
-        public void UpdatePointerSize(double size)
+        /// <summary>
+        /// Set the size of the pointer according to the parent canvas setting.
+        /// </summary>
+        public void UpdatePointerSize()
         {
-            pointerSize = size;
-            pointer.Width = pointerSize;
-            pointer.Height = pointerSize;
+            pointer.Width = parent.PointerSize;
+            pointer.Height = parent.PointerSize;
             PositionPointer();
+            RescalePointer();
         }
 
-        public void UpdateVisibility(bool isVisible)
+        /// <summary>
+        /// Set the visibility of the circle shape according to the parent canvas setting.
+        /// </summary>
+        public void UpdateShapeVisibility()
         {
-            if (isVisible)
-            {
-                shape.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                shape.Visibility = Visibility.Hidden;
-            }
+            shape.Visibility = parent.ShapesVisibility;
         }
 
         /// <summary>
@@ -105,7 +103,7 @@ namespace PrimesWithCircles.Models
         {
             trail.Points.Clear();
 
-            var centerOfCanvas = new Point(canvas.ActualWidth / 2, canvas.ActualHeight / 2);
+            var centerOfCanvas = new Point(parent.ActualWidth / 2, parent.ActualHeight / 2);
 
             Canvas.SetLeft(shape, centerOfCanvas.X - Radious);
             Canvas.SetTop(shape, centerOfCanvas.Y - Radious);
@@ -118,7 +116,7 @@ namespace PrimesWithCircles.Models
         /// </summary>
         public void PositionPointer()
         {
-            var centerOfCanvas = new Point(canvas.ActualWidth / 2, canvas.ActualHeight / 2);
+            var centerOfCanvas = new Point(parent.ActualWidth / 2, parent.ActualHeight / 2);
 
             double x = centerOfCanvas.X + Radious * Math.Cos(angle);
             double y = centerOfCanvas.Y + Radious * Math.Sin(angle);
@@ -139,9 +137,9 @@ namespace PrimesWithCircles.Models
         /// <summary>
         /// Rotate the circle for elapsedSec seconds. Returns true if the circle completed a lap
         /// </summary>
-        public bool RotateCircle(double rotationStep, bool firstLapCompleted, double baseRadious, double baseAngularSpeed)
+        public bool RotateCircle(double rotationStep, bool firstLapCompleted)
         {
-            double angularSpeed = baseAngularSpeed * (baseRadious / Radious);
+            double angularSpeed = parent.BaseAngularSpeed * (parent.BaseRadious / Radious);
             double delta = angularSpeed * rotationStep;
 
             angle += delta;
@@ -152,6 +150,7 @@ namespace PrimesWithCircles.Models
 
             PositionPointer();
 
+            // we use accumulatedAngle to count laps only for the first lap that is the base of the whole system
             if (accumulatedAngle >= 2 * Math.PI)
             {
                 accumulatedAngle -= 2 * Math.PI;
@@ -160,6 +159,9 @@ namespace PrimesWithCircles.Models
                     return true;
             }
 
+            // We use lapCounter to track full laps for synchronization with the first circle,
+            // because accumulatedAngle would eventually drift due to floating-point precision
+            // limits and the continuous updates in the rendering loop.
             if (firstLapCompleted)
             {
                 lapCounter++;
@@ -180,12 +182,20 @@ namespace PrimesWithCircles.Models
         /// Rescale the circle by the given scale factor of the canvas to be visible properly.
         /// </summary>
         /// <param name="scale"></param>
-        public void Rescale(double scale)
+        public void Rescale()
         {
-            shape.StrokeThickness = shapeStrokeThickness / scale;
-            trail.StrokeThickness = trailStrokeThickness / scale;
-            pointer.Width = pointerSize / scale;
-            pointer.Height = pointerSize / scale;
+            shape.StrokeThickness = shapeStrokeThickness / parent.CurrentScale;
+            trail.StrokeThickness = trailStrokeThickness / parent.CurrentScale;
+            RescalePointer();
+        }
+
+        /// <summary>
+        /// Rescales the pointer to match the current scale and pointer size of the parent element.
+        /// </summary>
+        public void RescalePointer()
+        {
+            pointer.Width = parent.PointerSize / parent.CurrentScale;
+            pointer.Height = parent.PointerSize / parent.CurrentScale;
         }
     }
 }

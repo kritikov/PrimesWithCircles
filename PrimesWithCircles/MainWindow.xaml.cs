@@ -1,9 +1,6 @@
-﻿using PrimesWithCircles.Models;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 
 namespace PrimesWithCircles
 {
@@ -11,7 +8,6 @@ namespace PrimesWithCircles
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public Circles Circles { get; set; }
         private bool isRotating = false;
 
         private int lapCounter = 2;
@@ -42,6 +38,20 @@ namespace PrimesWithCircles
             }
         }
 
+        private bool autoRotation = true;
+        public bool AutoRotation
+        {
+            get => autoRotation;
+            set
+            {
+                if (autoRotation != value)
+                {
+                    autoRotation = value;
+                    OnPropertyChanged(nameof(AutoRotation));
+                }
+            }
+        }
+
         private bool displayPrimes = true;
         public bool DisplayPrimes
         {
@@ -56,7 +66,7 @@ namespace PrimesWithCircles
             }
         }
 
-        private string primes;
+        private string primes = "";
         public string Primes
         {
             get => primes;
@@ -76,7 +86,6 @@ namespace PrimesWithCircles
         {
             InitializeComponent();
             DataContext = this;
-            Circles = new Circles(RotationCanvas);
 
             Loaded += OnLoaded;
             RotationCanvas.SizeChanged += OnCanvasSizeChanged;
@@ -96,7 +105,7 @@ namespace PrimesWithCircles
 
         private void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            Circles.CenterAllCircles();
+            RotationCanvas.CenterAllCircles();
         }
 
         
@@ -138,7 +147,7 @@ namespace PrimesWithCircles
         /// </summary>
         private void ResetData()
         {
-            Circles.Clear();
+            RotationCanvas.Clear();
 
             AddCircle(1);
             AddCircle(2);
@@ -153,9 +162,8 @@ namespace PrimesWithCircles
         /// </summary>
         private void AddCircle(int number)
         {
-            Circles.Add(number);
+            RotationCanvas.AddCircle(number);
 
-            AutoAdjustZoom();
         }
 
         /// <summary>
@@ -183,13 +191,13 @@ namespace PrimesWithCircles
         /// </summary>
         private void RotateCircles(double elapsedSec)
         {
-            var (FirstCompleted, SomeOtherCompleted) = Circles.RotateCircles(elapsedSec);
+            var (FirstCompleted, SomeOtherCompleted) = RotationCanvas.RotateCircles(elapsedSec);
 
 
             // if the first circle completed a lap
             if (FirstCompleted)
             {
-                if (AutoModeCheck.IsChecked != true)
+                if (AutoRotation != true)
                     StopRotation();
 
                 // increase lap counter
@@ -220,50 +228,7 @@ namespace PrimesWithCircles
         /// </summary>
         private void ResetZoom()
         {
-            Zoom(1);
-        }
-
-        /// <summary>
-        /// Zoom with animation
-        /// </summary>
-        /// <param name="targetScale"></param>
-        private void Zoom(double targetScale)
-        {
-            DoubleAnimation anim = new()
-            {
-                To = targetScale,
-                Duration = TimeSpan.FromMilliseconds(1000),
-                EasingFunction = new QuinticEase { EasingMode = EasingMode.EaseOut }
-            };
-
-            ZoomTransform.BeginAnimation(ScaleTransform.ScaleXProperty, anim);
-            ZoomTransform.BeginAnimation(ScaleTransform.ScaleYProperty, anim);
-        }
-
-        /// <summary>
-        /// Adjust the zoom level automatically to fit all circles in the canvas
-        /// </summary>
-        public void AutoAdjustZoom()
-        {
-            if (Circles.List.Count == 0) return;
-
-            double maxRadius = Circles.GetMaxRadious();
-            double neededSize = maxRadius * 2 + 100; // buffer
-
-            double actualWidthWithoutScale = RotationCanvas.ActualWidth * ZoomTransform.ScaleX;
-            double actualHeightWithoutScale = RotationCanvas.ActualHeight * ZoomTransform.ScaleX;
-
-            double scaleX = actualWidthWithoutScale / neededSize;
-            double scaleY = actualHeightWithoutScale / neededSize;
-
-            double newScale = Math.Min(scaleX, scaleY);
-
-            if (newScale < 1)
-            {
-                Zoom(newScale);
-                Circles.RescaleCircles(newScale);
-            }
-
+            RotationCanvas.Zoom(1);
         }
 
         #endregion
