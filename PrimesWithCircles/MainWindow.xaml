@@ -45,36 +45,54 @@
             </Grid>
 
             <StackPanel Grid.Row="2" VerticalAlignment="Top" Background="#FFE2E2E2">
-                <StackPanel Margin="10 10 10 20"  >
-                    <CheckBox Content="Auto rotation" IsChecked="{Binding AutoRotation}" Margin="0 5 0 5"/>
-                    <StackPanel Orientation="Horizontal" Margin="0 5 0 5">
-                        <Button x:Name="RotateButton" Content="Rotate" Click="RotateButton_Click" Width="50"/>
-                        <Button x:Name="PauseBtn" Content="Pause" Click="PauseBtn_Click" Width="50"/>
-                        <Button Content="Reset" Click="ResetBtn_Click" Width="50"/>
-                    </StackPanel>
+                <TabControl>
+                    <TabItem Header="rotation">
+                        <StackPanel Margin="10 10 10 20">
+                            <CheckBox Content="Auto rotation" IsChecked="{Binding AutoRotation}" Margin="0 5 0 5"/>
+                            <TextBlock Text="Rotation speed" Margin="0 5 0 5"/>
+                            <Slider Minimum="{Binding RotationSpeedMin, ElementName=RotationCanvas}"
+                                    Maximum="{Binding RotationSpeedMax, ElementName=RotationCanvas}"
+                                    TickFrequency="0.02"
+                                    Value="{Binding RotationSpeed, ElementName=RotationCanvas}"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 5 0 5">
+                                <Button x:Name="RotateButton" Content="Rotate" Click="RotateButton_Click" Width="50"/>
+                                <Button x:Name="PauseBtn" Content="Pause" Click="PauseBtn_Click" Width="50"/>
+                                <Button Content="Reset" Click="ResetBtn_Click" Width="50"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="settings">
+                        <StackPanel Margin="10 10 10 20">
+                            <TextBlock Text="Radious" Margin="0 5 0 5"/>
+                            <Slider Minimum="{Binding BaseRadiousMin, ElementName=RotationCanvas}"
+                                    Maximum="{Binding BaseRadiousMax, ElementName=RotationCanvas}" 
+                                    Value="{Binding BaseRadious, ElementName=RotationCanvas}"
+                                    TickFrequency="5"
+                                    IsEnabled="{Binding IsReseted}"/>
 
-                    <TextBlock Text="Rotation speed" Margin="0 5 0 5"/>
-                    <Slider Minimum="{Binding RotationSpeedMin, ElementName=RotationCanvas}"
-                            Maximum="{Binding RotationSpeedMax, ElementName=RotationCanvas}"
-                            TickFrequency="0.02"
-                            Value="{Binding RotationSpeed, ElementName=RotationCanvas}"/>
+                            <TextBlock Text="Circle thickness" Margin="0 5 0 5"/>
+                            <Slider Minimum="{Binding ShapeThicknessMin, ElementName=RotationCanvas}"
+                                    Maximum="{Binding ShapeThicknessMax, ElementName=RotationCanvas}"
+                                    TickFrequency="1" 
+                                    Value="{Binding ShapeThickness, ElementName=RotationCanvas}"/>
 
-                    <TextBlock Text="Radious" Margin="0 5 0 5"/>
-                    <Slider Minimum="{Binding BaseRadiousMin, ElementName=RotationCanvas}" 
-                            Maximum="{Binding BaseRadiousMax, ElementName=RotationCanvas}" 
-                            Value="{Binding BaseRadious, ElementName=RotationCanvas}" 
-                            TickFrequency="5" 
-                            IsEnabled="{Binding IsReseted}"/>
+                            <TextBlock Text="Pointer size" Margin="0 5 0 5"/>
+                            <Slider Minimum="{Binding PointerSizeMin, ElementName=RotationCanvas}"
+                                    Maximum="{Binding PointerSizeMax, ElementName=RotationCanvas}"
+                                    TickFrequency="1" 
+                                    Value="{Binding PointerSize, ElementName=RotationCanvas}"/>
 
-                    <TextBlock Text="Pointer size" Margin="0 5 0 5"/>
-                    <Slider Minimum="{Binding PointerSizeMin, ElementName=RotationCanvas}" 
-                            Maximum="{Binding PointerSizeMax, ElementName=RotationCanvas}" 
-                            TickFrequency="1" 
-                            Value="{Binding PointerSize, ElementName=RotationCanvas}"/>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="display">
+                        <StackPanel Margin="10 10 10 20">
+                            <CheckBox Content="display primes" IsChecked="{Binding DisplayPrimes}" Margin="0 5 0 5"/>
+                            <CheckBox Content="display circles" IsChecked="{Binding DisplayShapes, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
+                        </StackPanel>
+                    </TabItem>
+                </TabControl>
 
-                    <CheckBox Content="display primes" IsChecked="{Binding DisplayPrimes}" Margin="0 5 0 5"/>
-                    <CheckBox Content="display circles" IsChecked="{Binding DisplayShapes, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
-                </StackPanel>
+
             </StackPanel>
         </Grid>
 

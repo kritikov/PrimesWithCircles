@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 
 namespace PrimesWithCircles.Controls
 {
@@ -71,7 +73,6 @@ namespace PrimesWithCircles.Controls
             }
         }
 
-
         private double pointerSize = 8.0;
         public double PointerSize
         {
@@ -89,6 +90,24 @@ namespace PrimesWithCircles.Controls
         }
         public double PointerSizeMin => 4.0;
         public double PointerSizeMax => 40.0;
+
+        private double shapeThickness = 1.5;
+        public double ShapeThickness
+        {
+            get => shapeThickness;
+            set
+            {
+                if (shapeThickness != value)
+                {
+                    shapeThickness = value;
+                    UpdateShapeThicknesses();
+                    OnPropertyChanged(nameof(ShapeThickness));
+
+                }
+            }
+        }
+        public double ShapeThicknessMin => 1.0;
+        public double ShapeThicknessMax => 10.0;
 
         public double BaseAngularSpeed { get; set; } = Math.PI;
         public double CurrentScale { get; set; } = 1.0;
@@ -122,6 +141,12 @@ namespace PrimesWithCircles.Controls
             var circle = new Circle(this, number);
             this.circles.Add(circle);
 
+            Children.Insert(circles.Count-1, circle.Shape);
+            Children.Insert(circles.Count * 2 -1, circle.Trail);
+            Children.Insert(circles.Count * 3 -1, circle.Pointer);
+
+            circle.Center();
+
             AdjustZoom();
         }
 
@@ -145,6 +170,9 @@ namespace PrimesWithCircles.Controls
             }
         }
 
+        /// <summary>
+        /// Set radius for all circles based on BaseRadious
+        /// </summary>
         public void UpdateBaseRadious()
         {
             foreach (var circle in circles)
@@ -153,6 +181,9 @@ namespace PrimesWithCircles.Controls
             }
         }
 
+        /// <summary>
+        /// Set pointer sizes for all circles
+        /// </summary>
         public void UpdatePointerSizes()
         {
             foreach (var circle in circles)
@@ -161,6 +192,20 @@ namespace PrimesWithCircles.Controls
             }
         }
 
+        /// <summary>
+        /// Set shape thicknesses for all circles
+        /// </summary>
+        public void UpdateShapeThicknesses()
+        {
+            foreach (var circle in circles)
+            {
+                circle.UpdateShapeThickness();
+            }
+        }
+
+        /// <summary>
+        /// Set shape visibility for all circles
+        /// </summary>
         public void UpdateShapesVisibility()
         {
             foreach (var circle in circles)
@@ -168,7 +213,6 @@ namespace PrimesWithCircles.Controls
                 circle.UpdateShapeVisibility();
             }
         }
-
 
         /// <summary>
         /// Rotate all circles for elapsedSec seconds. Stops and handles lap logic for first circle.
