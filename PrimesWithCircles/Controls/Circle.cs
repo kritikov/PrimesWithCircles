@@ -2,7 +2,6 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace PrimesWithCircles.Controls
 {
@@ -16,7 +15,7 @@ namespace PrimesWithCircles.Controls
         public readonly Polyline Trail;
 
         private readonly double trailStrokeThickness = 2;
-        private readonly RotationCanvas parent;
+        private readonly RotationCanvas canvas;
         private int lapCounter = 0;         // helper to synchronize laps with the first one avoiding drift from rendering loop and floating-point precision limits
         private double angle;               // Angle in radians, canonicalized to [0, 2π)
         private double accumulatedAngle;    // accumulated angle in radians (not canonicalized)
@@ -24,8 +23,8 @@ namespace PrimesWithCircles.Controls
 
         public Circle(RotationCanvas canvas, int number)
         {
-            this.parent = canvas;
-            Radious = parent.BaseRadious * number;
+            this.canvas = canvas;
+            Radious = this.canvas.BaseRadious * number;
             Number = number;
 
             Shape = new Ellipse
@@ -33,14 +32,14 @@ namespace PrimesWithCircles.Controls
                 Width = Radious * 2,
                 Height = Radious * 2,
                 Stroke = Brushes.DimGray,
-                StrokeThickness = parent.ShapeThickness,
-                Visibility = parent.ShapesVisibility
+                StrokeThickness = this.canvas.ShapeThickness,
+                Visibility = this.canvas.ShapesVisibility
             };
 
             Pointer = new Ellipse
             {
-                Width = parent.PointerSize,
-                Height = parent.PointerSize,
+                Width = this.canvas.PointerSize,
+                Height = this.canvas.PointerSize,
                 Fill = Brushes.Yellow,
                 Stroke = Brushes.Black,
                 StrokeThickness = 1
@@ -64,7 +63,7 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void UpdateRadious()
         {
-            Radious = parent.BaseRadious * Number;
+            Radious = canvas.BaseRadious * Number;
             Shape.Width = Radious * 2;
             Shape.Height = Radious * 2;
             Center();
@@ -75,15 +74,15 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void UpdatePointerSize()
         {
-            Pointer.Width = parent.PointerSize;
-            Pointer.Height = parent.PointerSize;
+            Pointer.Width = canvas.PointerSize;
+            Pointer.Height = canvas.PointerSize;
             RescalePointer();
             PositionPointer();
         }
 
         public void UpdateShapeThickness()
         {
-            Shape.StrokeThickness = parent.ShapeThickness;
+            Shape.StrokeThickness = canvas.ShapeThickness;
             Rescale();
             PositionPointer();
         }
@@ -93,7 +92,7 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void UpdateShapeVisibility()
         {
-            Shape.Visibility = parent.ShapesVisibility;
+            Shape.Visibility = canvas.ShapesVisibility;
         }
 
         /// <summary>
@@ -103,7 +102,7 @@ namespace PrimesWithCircles.Controls
         {
             Trail.Points.Clear();
 
-            var centerOfCanvas = new Point(parent.ActualWidth / 2, parent.ActualHeight / 2);
+            var centerOfCanvas = new Point(canvas.ActualWidth / 2, canvas.ActualHeight / 2);
 
             Canvas.SetLeft(Shape, centerOfCanvas.X - Radious);
             Canvas.SetTop(Shape, centerOfCanvas.Y - Radious);
@@ -116,9 +115,9 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void PositionPointer()
         {
-            var centerOfCanvas = new Point(parent.ActualWidth / 2, parent.ActualHeight / 2);
+            var centerOfCanvas = new Point(canvas.ActualWidth / 2, canvas.ActualHeight / 2);
 
-            double effectiveRadius = Radious - parent.ShapeThickness / 2;
+            double effectiveRadius = Radious - canvas.ShapeThickness / 2;
 
             double x = centerOfCanvas.X + effectiveRadius * Math.Cos(angle);
             double y = centerOfCanvas.Y + effectiveRadius * Math.Sin(angle);
@@ -141,7 +140,7 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public bool RotateCircle(double rotationStep, bool firstLapCompleted)
         {
-            double angularSpeed = parent.BaseAngularSpeed * (parent.BaseRadious / Radious);
+            double angularSpeed = canvas.BaseAngularSpeed * (canvas.BaseRadious / Radious);
             double delta = angularSpeed * rotationStep;
 
             angle += delta;
@@ -186,8 +185,8 @@ namespace PrimesWithCircles.Controls
         /// <param name="scale"></param>
         public void Rescale()
         {
-            Shape.StrokeThickness = parent.ShapeThickness / parent.CurrentScale;
-            Trail.StrokeThickness = parent.ShapeThickness / parent.CurrentScale;
+            Shape.StrokeThickness = canvas.ShapeThickness / canvas.CurrentScale;
+            Trail.StrokeThickness = canvas.ShapeThickness / canvas.CurrentScale;
             RescalePointer();
         }
 
@@ -197,8 +196,8 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void RescalePointer()
         {
-            Pointer.Width = parent.PointerSize / parent.CurrentScale;
-            Pointer.Height = parent.PointerSize / parent.CurrentScale;
+            Pointer.Width = canvas.PointerSize / canvas.CurrentScale;
+            Pointer.Height = canvas.PointerSize / canvas.CurrentScale;
         }
     }
 }

@@ -106,7 +106,7 @@ namespace PrimesWithCircles
         {
             // COMMENT: AdjustZoom method already called in RotationCanvas when size changes. Potentional problem with double calls?
 
-            RotationCanvas.CenterAllCircles();
+            RotationCanvas.CenterAll();
             RotationCanvas.AdjustZoom();
         }
         

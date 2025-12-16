@@ -70,6 +70,12 @@
                                     TickFrequency="5"
                                     IsEnabled="{Binding IsReseted}"/>
 
+                            <TextBlock Text="Lap line thickness" Margin="0 5 0 5"/>
+                            <Slider Minimum="{Binding LapLineThicknessMin, ElementName=RotationCanvas}"
+                                    Maximum="{Binding LapLineThicknessMax, ElementName=RotationCanvas}"
+                                    TickFrequency="1" 
+                                    Value="{Binding LapLineThickness, ElementName=RotationCanvas}"/>
+
                             <TextBlock Text="Circle thickness" Margin="0 5 0 5"/>
                             <Slider Minimum="{Binding ShapeThicknessMin, ElementName=RotationCanvas}"
                                     Maximum="{Binding ShapeThicknessMax, ElementName=RotationCanvas}"
@@ -87,6 +93,7 @@
                     <TabItem Header="display">
                         <StackPanel Margin="10 10 10 20">
                             <CheckBox Content="display primes" IsChecked="{Binding DisplayPrimes}" Margin="0 5 0 5"/>
+                            <CheckBox Content="display lap line" IsChecked="{Binding DisplayLapLine, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                             <CheckBox Content="display circles" IsChecked="{Binding DisplayShapes, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                         </StackPanel>
                     </TabItem>

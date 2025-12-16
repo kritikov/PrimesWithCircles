@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 
 namespace PrimesWithCircles.Controls
 {
@@ -18,6 +16,7 @@ namespace PrimesWithCircles.Controls
         #region PROPERTIES AND FIELDS
 
         private readonly List<Circle> circles = [];
+        private LapLine lapLine;
         private ScaleTransform ZoomTransform { get; set; }
 
         private double baseRadious = 30.0;
@@ -38,6 +37,21 @@ namespace PrimesWithCircles.Controls
         public double BaseRadiousMin => 10.0;
         public double BaseRadiousMax => 200.0;
 
+
+        private bool displayLapLine = false;
+        public bool DisplayLapLine
+        {
+            get => displayLapLine;
+            set
+            {
+                if (displayLapLine != value)
+                {
+                    displayLapLine = value;
+                    lapLine.line.Visibility = displayLapLine ? Visibility.Visible : Visibility.Hidden;
+                    OnPropertyChanged(nameof(DisplayLapLine));
+                }
+            }
+        }
 
         private bool displayShapes = true;
         public bool DisplayShapes
@@ -92,6 +106,24 @@ namespace PrimesWithCircles.Controls
         public double PointerSizeMin => 4.0;
         public double PointerSizeMax => 40.0;
 
+        private double lapLineThickness = 1.5;
+        public double LapLineThickness
+        {
+            get => lapLineThickness;
+            set
+            {
+                if (lapLineThickness != value)
+                {
+                    lapLineThickness = value;
+                    lapLine.line.StrokeThickness = lapLineThickness;
+                    OnPropertyChanged(nameof(LapLineThickness));
+
+                }
+            }
+        }
+        public double LapLineThicknessMin => 1.0;
+        public double LapLineThicknessMax => 10.0;
+
         private double shapeThickness = 1.5;
         public double ShapeThickness
         {
@@ -127,6 +159,7 @@ namespace PrimesWithCircles.Controls
         {
             ZoomTransform  = new ScaleTransform(CurrentScale, CurrentScale);
             LayoutTransform = ZoomTransform;
+
         }
 
         #endregion
@@ -142,11 +175,19 @@ namespace PrimesWithCircles.Controls
             var circle = new Circle(this, number);
             this.circles.Add(circle);
 
-            Children.Insert(circles.Count-1, circle.Shape);
-            Children.Insert(circles.Count * 2 -1, circle.Trail);
-            Children.Insert(circles.Count * 3 -1, circle.Pointer);
+            Children.Insert(circles.Count, circle.Shape);
+            Children.Insert(circles.Count * 2, circle.Trail);
+            Children.Insert(circles.Count * 3, circle.Pointer);
 
             circle.Center();
+        }
+
+        public void AddLine()
+        {
+            lapLine = new LapLine(this);
+            lapLine.Center();
+
+            Children.Add(lapLine.line);
         }
 
         public void AddPrime(int number)
@@ -167,16 +208,20 @@ namespace PrimesWithCircles.Controls
             ZoomTransform.ScaleY = CurrentScale;
             Zoom(CurrentScale);
 
+            AddLine();
             AddCircle(1);
             AddCircle(2);
             AdjustZoom();
         }
 
         /// <summary>
-        /// Center all circles in the canvas
+        /// Center all elements in the canvas
         /// </summary>
-        public void CenterAllCircles()
+        public void CenterAll()
         {
+            if (lapLine != null)
+                lapLine.Center();
+
             foreach (var circle in circles)
             {
                 circle.Center();
@@ -261,16 +306,18 @@ namespace PrimesWithCircles.Controls
         }
 
         /// <summary>
-        /// Rescale all circles according to the given currentScale value.
+        /// Rescale all elements according to the given currentScale value.
         /// </summary>
         /// <param name="currentScale"></param>
-        public void RescaleCircles()
+        public void RescaleAll()
         {
+            if (lapLine != null)
+                lapLine.Rescale();
+
             foreach (var circle in circles)
             {
                 circle.Rescale();
             }
-
         }
 
         /// <summary>
@@ -291,7 +338,7 @@ namespace PrimesWithCircles.Controls
             ZoomTransform.BeginAnimation(ScaleTransform.ScaleXProperty, anim);
             ZoomTransform.BeginAnimation(ScaleTransform.ScaleYProperty, anim);
 
-            RescaleCircles();
+            RescaleAll();
         }
 
         /// <summary>
