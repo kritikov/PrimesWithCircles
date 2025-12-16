@@ -102,18 +102,20 @@ namespace PrimesWithCircles
         protected void OnPropertyChanged(string name)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-
         private void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            RotationCanvas.CenterAllCircles();
-        }
+            // COMMENT: AdjustZoom method already called in RotationCanvas when size changes. Potentional problem with double calls?
 
+            RotationCanvas.CenterAllCircles();
+            RotationCanvas.AdjustZoom();
+        }
         
         private void OnRendering(object? sender, EventArgs e)
         {
             var rotateStep = 0.01;
             RotateCircles(rotateStep);
         }
+        
         private void RotateButton_Click(object sender, RoutedEventArgs e)
         {
             // if not allready rotating, start rotating
@@ -133,7 +135,6 @@ namespace PrimesWithCircles
         {
             StopRotation();
             ResetData();
-            ResetZoom();
         }
 
         #endregion
@@ -147,23 +148,11 @@ namespace PrimesWithCircles
         /// </summary>
         private void ResetData()
         {
-            RotationCanvas.Clear();
-
-            AddCircle(1);
-            AddCircle(2);
+            RotationCanvas.Reset();
 
             LapCounter = 2;
             Primes = "primes: 2";
             IsReseted = true;
-        }
-
-        /// <summary>
-        ///  Add a new circle with given number.
-        /// </summary>
-        private void AddCircle(int number)
-        {
-            RotationCanvas.AddCircle(number);
-
         }
 
         /// <summary>
@@ -214,7 +203,7 @@ namespace PrimesWithCircles
         /// </summary>
         private void AddPrime(int number) {
 
-            AddCircle(LapCounter);
+            RotationCanvas.AddPrime(LapCounter);
 
             if (Primes.Length > 0)
                 Primes += ", ";
@@ -222,14 +211,6 @@ namespace PrimesWithCircles
             Primes += number.ToString();
         }
 
-
-        /// <summary>
-        /// Remove the zoom by setting it to 1
-        /// </summary>
-        private void ResetZoom()
-        {
-            RotationCanvas.Zoom(1);
-        }
 
         #endregion
 

@@ -30,6 +30,7 @@ namespace PrimesWithCircles.Controls
                 {
                     baseRadious = value;
                     UpdateBaseRadious();
+                    AdjustZoom();
                     OnPropertyChanged(nameof(BaseRadious));
                 }
             }
@@ -146,17 +147,29 @@ namespace PrimesWithCircles.Controls
             Children.Insert(circles.Count * 3 -1, circle.Pointer);
 
             circle.Center();
+        }
 
+        public void AddPrime(int number)
+        {
+            AddCircle(number);
             AdjustZoom();
         }
 
         /// <summary>
-        /// Clear all circles
+        /// Clear all circles and reset to initial state with circles 1 and 2
         /// </summary>
-        public void Clear()
+        public void Reset()
         {
-            this.circles.Clear();
-            this.Children.Clear();
+            circles.Clear();
+            Children.Clear();
+            CurrentScale = 1.0;
+            ZoomTransform.ScaleX = CurrentScale;
+            ZoomTransform.ScaleY = CurrentScale;
+            Zoom(CurrentScale);
+
+            AddCircle(1);
+            AddCircle(2);
+            AdjustZoom();
         }
 
         /// <summary>
