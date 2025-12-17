@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using PrimesWithCircles.Controls;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
 
@@ -10,20 +11,6 @@ namespace PrimesWithCircles
 
         private bool isRotating = false;
 
-        private int lapCounter = 2;
-        public int LapCounter
-        {
-            get => lapCounter;
-            set
-            {
-                if (lapCounter != value)
-                {
-                    lapCounter = value;
-                    OnPropertyChanged(nameof(LapCounter));
-                }
-            }
-        }
-
         private bool isReseted = true;
         public bool IsReseted
         {
@@ -34,34 +21,6 @@ namespace PrimesWithCircles
                 {
                     isReseted = value;
                     OnPropertyChanged(nameof(IsReseted));
-                }
-            }
-        }
-
-        private bool autoRotation = true;
-        public bool AutoRotation
-        {
-            get => autoRotation;
-            set
-            {
-                if (autoRotation != value)
-                {
-                    autoRotation = value;
-                    OnPropertyChanged(nameof(AutoRotation));
-                }
-            }
-        }
-
-        private bool displayPrimes = true;
-        public bool DisplayPrimes
-        {
-            get => displayPrimes;
-            set
-            {
-                if (displayPrimes != value)
-                {
-                    displayPrimes = value;
-                    OnPropertyChanged(nameof(DisplayPrimes));
                 }
             }
         }
@@ -149,9 +108,8 @@ namespace PrimesWithCircles
         private void ResetData()
         {
             RotationCanvas.Reset();
-
-            LapCounter = 2;
-            Primes = "primes: 2";
+            
+            Primes = $"primes: {RotationCanvas.LapCounter}";
             IsReseted = true;
         }
 
@@ -186,15 +144,18 @@ namespace PrimesWithCircles
             // if the first circle completed a lap
             if (FirstCompleted)
             {
-                if (AutoRotation != true)
+                if (RotationCanvas.AutoRotation != true)
                     StopRotation();
 
                 // increase lap counter
-                LapCounter++;
+                RotationCanvas.LapCounter++;
 
                 // if no other circle completed a lap, then the lap counter is a prime
-                if (!SomeOtherCompleted)
-                    AddPrime(LapCounter);
+                if (RotationCanvas.PresentationMode == PresentationMode.SeekPrimes)
+                {
+                    if (!SomeOtherCompleted)
+                        AddPrime(RotationCanvas.LapCounter);
+                }
             }
         }
 
@@ -203,7 +164,7 @@ namespace PrimesWithCircles
         /// </summary>
         private void AddPrime(int number) {
 
-            RotationCanvas.AddPrime(LapCounter);
+            RotationCanvas.AddPrime(RotationCanvas.LapCounter);
 
             if (Primes.Length > 0)
                 Primes += ", ";

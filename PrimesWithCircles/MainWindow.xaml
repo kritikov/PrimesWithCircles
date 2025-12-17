@@ -2,12 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Primes With Circles" Width="1000" Height="700"
-        xmlns:models="clr-namespace:PrimesWithCircles.Controls"
+        xmlns:controls="clr-namespace:PrimesWithCircles.Controls"
         xmlns:converters="clr-namespace:PrimesWithCircles.Converters"
+        xmlns:extensions="clr-namespace:PrimesWithCircles.Extensions"
         WindowStartupLocation="CenterScreen" Background="Black">
 
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <extensions:EnumDescription x:Key="EnumDescription"/>
     </Window.Resources>
 
     <Grid>
@@ -26,7 +28,7 @@
             <Grid Grid.Row="0" Background="#07000000">
                 <TextBlock FontSize="40"
                    FontWeight="Bold"
-                   Text="{Binding LapCounter}"
+                   Text="{Binding LapCounter, ElementName=RotationCanvas}"
                    TextAlignment="Center"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
@@ -34,7 +36,7 @@
             </Grid>
 
             <Grid Grid.Row="1" Background="Black">
-                <ScrollViewer x:Name="PrimesScroll" VerticalScrollBarVisibility="Auto" Visibility="{Binding DisplayPrimes, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ScrollViewer x:Name="PrimesScroll" VerticalScrollBarVisibility="Auto" Visibility="{Binding DisplayPrimes, Converter={StaticResource BoolToVisibilityConverter}, ElementName=RotationCanvas}">
                     <TextBlock Text="{Binding Primes}"
                                TextAlignment="Left"
                                TextWrapping="Wrap"
@@ -46,9 +48,9 @@
 
             <StackPanel Grid.Row="2" VerticalAlignment="Top" Background="#FFE2E2E2">
                 <TabControl>
-                    <TabItem Header="rotation">
+                    <TabItem Header="play">
                         <StackPanel Margin="10 10 10 20">
-                            <CheckBox Content="Auto rotation" IsChecked="{Binding AutoRotation}" Margin="0 5 0 5"/>
+                            <CheckBox Content="Auto rotation" IsChecked="{Binding AutoRotation, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                             <TextBlock Text="Rotation speed" Margin="0 5 0 5"/>
                             <Slider Minimum="{Binding RotationSpeedMin, ElementName=RotationCanvas}"
                                     Maximum="{Binding RotationSpeedMax, ElementName=RotationCanvas}"
@@ -77,10 +79,10 @@
                                     Value="{Binding LapLineThickness, ElementName=RotationCanvas}"/>
 
                             <TextBlock Text="Circle thickness" Margin="0 5 0 5"/>
-                            <Slider Minimum="{Binding ShapeThicknessMin, ElementName=RotationCanvas}"
-                                    Maximum="{Binding ShapeThicknessMax, ElementName=RotationCanvas}"
+                            <Slider Minimum="{Binding CircleThicknessMin, ElementName=RotationCanvas}"
+                                    Maximum="{Binding CircleThicknessMax, ElementName=RotationCanvas}"
                                     TickFrequency="1" 
-                                    Value="{Binding ShapeThickness, ElementName=RotationCanvas}"/>
+                                    Value="{Binding CircleThickness, ElementName=RotationCanvas}"/>
 
                             <TextBlock Text="Pointer size" Margin="0 5 0 5"/>
                             <Slider Minimum="{Binding PointerSizeMin, ElementName=RotationCanvas}"
@@ -88,13 +90,28 @@
                                     TickFrequency="1" 
                                     Value="{Binding PointerSize, ElementName=RotationCanvas}"/>
 
+                            <TextBlock Text="Trail thickness" Margin="0 5 0 5"/>
+                            <Slider Minimum="{Binding TrailThicknessMin, ElementName=RotationCanvas}"
+                                    Maximum="{Binding TrailThicknessMax, ElementName=RotationCanvas}"
+                                    TickFrequency="1" 
+                                    Value="{Binding TrailThickness, ElementName=RotationCanvas}"/>
+
+
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="display">
+                    <TabItem Header="mode">
                         <StackPanel Margin="10 10 10 20">
-                            <CheckBox Content="display primes" IsChecked="{Binding DisplayPrimes}" Margin="0 5 0 5"/>
+                            <ComboBox ItemsSource="{extensions:EnumDescription {x:Type controls:PresentationMode}}"
+                                      DisplayMemberPath="Description"
+                                      SelectedValuePath="Value"
+                                      SelectedValue="{Binding PresentationMode, Mode=TwoWay, ElementName=RotationCanvas}"
+                                      IsEnabled="{Binding IsReseted}"
+                                      Margin="0 5 0 5"/>
+
+                            <CheckBox Content="display primes" IsChecked="{Binding DisplayPrimes, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                             <CheckBox Content="display lap line" IsChecked="{Binding DisplayLapLine, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
-                            <CheckBox Content="display circles" IsChecked="{Binding DisplayShapes, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
+                            <CheckBox Content="display circles" IsChecked="{Binding DisplayCircles, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
+                            <CheckBox Content="display trails" IsChecked="{Binding DisplayTrails, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                         </StackPanel>
                     </TabItem>
                 </TabControl>
@@ -104,7 +121,7 @@
         </Grid>
 
         <Grid Grid.Column="1" >
-            <models:RotationCanvas x:Name="RotationCanvas" Background="Black"/>
+            <controls:RotationCanvas x:Name="RotationCanvas" Background="Black"/>
         </Grid>
 
     </Grid>

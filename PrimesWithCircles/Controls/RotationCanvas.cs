@@ -19,6 +19,49 @@ namespace PrimesWithCircles.Controls
         private LapLine lapLine;
         private ScaleTransform ZoomTransform { get; set; }
 
+        private PresentationMode presentationMode = PresentationMode.SeekPrimes;
+        public PresentationMode PresentationMode
+        {
+            get => presentationMode;
+            set
+            {
+                if (presentationMode != value)
+                {
+                    presentationMode = value;
+                    Reset();
+                    OnPropertyChanged(nameof(PresentationMode));
+                }
+            }
+        }
+
+        private int lapCounter = 0;
+        public int LapCounter
+        {
+            get => lapCounter;
+            set
+            {
+                if (lapCounter != value)
+                {
+                    lapCounter = value;
+                    OnPropertyChanged(nameof(LapCounter));
+                }
+            }
+        }
+
+        private bool autoRotation = false;
+        public bool AutoRotation
+        {
+            get => autoRotation;
+            set
+            {
+                if (autoRotation != value)
+                {
+                    autoRotation = value;
+                    OnPropertyChanged(nameof(AutoRotation));
+                }
+            }
+        }
+
         private double baseRadious = 30.0;
         public double BaseRadious
         {
@@ -37,7 +80,6 @@ namespace PrimesWithCircles.Controls
         public double BaseRadiousMin => 10.0;
         public double BaseRadiousMax => 200.0;
 
-
         private bool displayLapLine = false;
         public bool DisplayLapLine
         {
@@ -53,17 +95,46 @@ namespace PrimesWithCircles.Controls
             }
         }
 
-        private bool displayShapes = true;
-        public bool DisplayShapes
+        private bool displayCircles = true;
+        public bool DisplayCircles
         {
-            get => displayShapes;
+            get => displayCircles;
             set
             {
-                if (displayShapes != value)
+                if (displayCircles != value)
                 {
-                    displayShapes = value;
-                    UpdateShapesVisibility();
-                    OnPropertyChanged(nameof(DisplayShapes));
+                    displayCircles = value;
+                    UpdateCirclesVisibility();
+                    OnPropertyChanged(nameof(DisplayCircles));
+                }
+            }
+        }
+
+        private bool displayTrails = true;
+        public bool DisplayTrails
+        {
+            get => displayTrails;
+            set
+            {
+                if (displayTrails != value)
+                {
+                    displayTrails = value;
+                    UpdateTrailsVisibility();
+                    OnPropertyChanged(nameof(DisplayTrails));
+                }
+            }
+        }
+
+        private bool displayPrimes = true;
+        public bool DisplayPrimes
+        {
+            get => displayPrimes;
+            set
+            {
+                if (displayPrimes != value)
+                {
+                    displayPrimes = value;
+                    OnPropertyChanged(nameof(DisplayPrimes));
                 }
             }
         }
@@ -124,30 +195,53 @@ namespace PrimesWithCircles.Controls
         public double LapLineThicknessMin => 1.0;
         public double LapLineThicknessMax => 10.0;
 
-        private double shapeThickness = 1.5;
-        public double ShapeThickness
+        private double circleThickness = 1.5;
+        public double CircleThickness
         {
-            get => shapeThickness;
+            get => circleThickness;
             set
             {
-                if (shapeThickness != value)
+                if (circleThickness != value)
                 {
-                    shapeThickness = value;
-                    UpdateShapeThicknesses();
-                    OnPropertyChanged(nameof(ShapeThickness));
+                    circleThickness = value;
+                    UpdateCircleThicknesses();
+                    OnPropertyChanged(nameof(CircleThickness));
 
                 }
             }
         }
-        public double ShapeThicknessMin => 1.0;
-        public double ShapeThicknessMax => 10.0;
+        public double CircleThicknessMin => 1.0;
+        public double CircleThicknessMax => 10.0;
+
+        private double trailThickness = 2;
+        public double TrailThickness
+        {
+            get => trailThickness;
+            set
+            {
+                if (trailThickness != value)
+                {
+                    trailThickness = value;
+                    UpdateTrailThicknesses();
+                    OnPropertyChanged(nameof(TrailThickness));
+
+                }
+            }
+        }
+        public double TrailThicknessMin => 1.0;
+        public double TrailThicknessMax => 10.0;
 
         public double BaseAngularSpeed { get; set; } = Math.PI;
         public double CurrentScale { get; set; } = 1.0;
 
-        public Visibility ShapesVisibility
+        public Visibility CirclesVisibility
         {
-            get => DisplayShapes == true ? Visibility.Visible : Visibility.Hidden;
+            get => DisplayCircles == true ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        public Visibility TrailsVisibility
+        {
+            get => DisplayTrails == true ? Visibility.Visible : Visibility.Hidden;
         }
 
         #endregion
@@ -209,8 +303,28 @@ namespace PrimesWithCircles.Controls
             Zoom(CurrentScale);
 
             AddLine();
-            AddCircle(1);
-            AddCircle(2);
+
+            if (PresentationMode == PresentationMode.OneCircle)
+            {
+                AddCircle(1);
+                LapCounter = 0;
+                DisplayPrimes = false;
+            }
+            else if (PresentationMode == PresentationMode.TwoCircles)
+            {
+                AddCircle(1);
+                AddCircle(2);
+                LapCounter = 0;
+                DisplayPrimes = false;
+            }
+            else if (PresentationMode == PresentationMode.SeekPrimes)
+            {
+                AddCircle(1);
+                AddCircle(2);
+                LapCounter = 2;
+                DisplayPrimes = true;
+            }
+
             AdjustZoom();
         }
 
@@ -253,22 +367,44 @@ namespace PrimesWithCircles.Controls
         /// <summary>
         /// Set shape thicknesses for all circles
         /// </summary>
-        public void UpdateShapeThicknesses()
+        public void UpdateCircleThicknesses()
         {
             foreach (var circle in circles)
             {
-                circle.UpdateShapeThickness();
+                circle.UpdateCircleThickness();
+            }
+        }
+
+        /// <summary>
+        /// Set trail thicknesses for all circles
+        /// </summary>
+        public void UpdateTrailThicknesses()
+        {
+            foreach (var circle in circles)
+            {
+                circle.UpdateTrailThickness();
             }
         }
 
         /// <summary>
         /// Set shape visibility for all circles
         /// </summary>
-        public void UpdateShapesVisibility()
+        public void UpdateCirclesVisibility()
         {
             foreach (var circle in circles)
             {
                 circle.UpdateShapeVisibility();
+            }
+        }
+
+        /// <summary>
+        /// Set trail visibility for all circles
+        /// </summary>
+        public void UpdateTrailsVisibility()
+        {
+            foreach (var circle in circles)
+            {
+                circle.UpdateTrailVisibility();
             }
         }
 

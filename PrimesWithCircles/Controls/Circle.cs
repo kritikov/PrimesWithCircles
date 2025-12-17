@@ -14,8 +14,8 @@ namespace PrimesWithCircles.Controls
         public readonly Ellipse Pointer;
         public readonly Polyline Trail;
 
-        private readonly double trailStrokeThickness = 2;
         private readonly RotationCanvas canvas;
+        private Point center;               // center of the circle in the canvas
         private int lapCounter = 0;         // helper to synchronize laps with the first one avoiding drift from rendering loop and floating-point precision limits
         private double angle;               // Angle in radians, canonicalized to [0, 2π)
         private double accumulatedAngle;    // accumulated angle in radians (not canonicalized)
@@ -26,14 +26,15 @@ namespace PrimesWithCircles.Controls
             this.canvas = canvas;
             Radious = this.canvas.BaseRadious * number;
             Number = number;
+            center = new Point(canvas.ActualWidth / 2, canvas.ActualHeight / 2);
 
             Shape = new Ellipse
             {
                 Width = Radious * 2,
                 Height = Radious * 2,
                 Stroke = Brushes.DimGray,
-                StrokeThickness = this.canvas.ShapeThickness,
-                Visibility = this.canvas.ShapesVisibility
+                StrokeThickness = this.canvas.CircleThickness,
+                Visibility = this.canvas.CirclesVisibility
             };
 
             Pointer = new Ellipse
@@ -48,8 +49,9 @@ namespace PrimesWithCircles.Controls
             Trail = new Polyline
             {
                 Stroke = Brushes.Red,
-                StrokeThickness = trailStrokeThickness,
-                Opacity = 0.5
+                StrokeThickness = this.canvas.TrailThickness,
+                Opacity = 0.5,
+                Visibility = this.canvas.TrailsVisibility
             };
 
             // start at top: -π/2
@@ -68,6 +70,17 @@ namespace PrimesWithCircles.Controls
             Shape.Height = Radious * 2;
             Center();
         }
+ 
+        /// <summary>
+        /// Set the thickness of the shape according to the parent canvas setting.
+        /// </summary>
+        public void UpdateCircleThickness()
+        {
+            Shape.StrokeThickness = canvas.CircleThickness;
+            //Rescale();
+            PositionPointer();
+            //PositionTrail();
+        }
 
         /// <summary>
         /// Set the size of the pointer according to the parent canvas setting.
@@ -80,11 +93,13 @@ namespace PrimesWithCircles.Controls
             PositionPointer();
         }
 
-        public void UpdateShapeThickness()
+        /// <summary>
+        /// Set the thickness of the trail according to the parent canvas setting.
+        /// </summary>
+        public void UpdateTrailThickness()
         {
-            Shape.StrokeThickness = canvas.ShapeThickness;
-            Rescale();
-            PositionPointer();
+            Trail.StrokeThickness = canvas.TrailThickness;
+            RescaleTrail();
         }
 
         /// <summary>
@@ -92,22 +107,31 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void UpdateShapeVisibility()
         {
-            Shape.Visibility = canvas.ShapesVisibility;
+            Shape.Visibility = canvas.CirclesVisibility;
         }
 
         /// <summary>
-        /// Center the circle in the canvas.
+        /// Set the visibility of the circle trail according to the parent canvas setting.
+        /// </summary>
+        public void UpdateTrailVisibility()
+        {
+            Trail.Visibility = canvas.TrailsVisibility;
+        }
+
+        /// <summary>
+        /// Center the circle and all of its associated elements in the canvas.
         /// </summary>
         public void Center()
         {
-            Trail.Points.Clear();
+            var oldCenter = new Point(center.X, center.Y);
 
-            var centerOfCanvas = new Point(canvas.ActualWidth / 2, canvas.ActualHeight / 2);
+            center = new Point(canvas.ActualWidth / 2, canvas.ActualHeight / 2);
 
-            Canvas.SetLeft(Shape, centerOfCanvas.X - Radious);
-            Canvas.SetTop(Shape, centerOfCanvas.Y - Radious);
+            Canvas.SetLeft(Shape, center.X - Radious);
+            Canvas.SetTop(Shape, center.Y - Radious);
 
             PositionPointer();
+            RepositionTrail(oldCenter);
         }
 
         /// <summary>
@@ -115,24 +139,83 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void PositionPointer()
         {
-            var centerOfCanvas = new Point(canvas.ActualWidth / 2, canvas.ActualHeight / 2);
+            double effectiveRadius = Radious - Shape.StrokeThickness / 2;
 
-            double effectiveRadius = Radious - canvas.ShapeThickness / 2;
-
-            double x = centerOfCanvas.X + effectiveRadius * Math.Cos(angle);
-            double y = centerOfCanvas.Y + effectiveRadius * Math.Sin(angle);
+            double x = center.X + effectiveRadius * Math.Cos(angle);
+            double y = center.Y + effectiveRadius * Math.Sin(angle);
 
             Canvas.SetLeft(Pointer, x - Pointer.Width / 2);
             Canvas.SetTop(Pointer, y - Pointer.Height / 2);
+        }
 
-            // trail: append a point
-            //if (trail != null)
-            //{
-            //    var pts = trail.Points;
-            //    pts.Add(new Point(x, y));
-            //    if (pts.Count > 10) // cap trail length
-            //        pts.RemoveAt(0);
-            //}
+        /// <summary>
+        /// Reposition the trail of the circle according to the new center of the circle.
+        /// </summary>
+        public void RepositionTrail(Point oldCenter)
+        {
+            var dx = oldCenter.X - center.X;
+            var dy = oldCenter.Y - center.Y;
+
+            PointCollection newPoints = new();
+            foreach (var pt in Trail.Points)
+            {
+                var newPt = new Point(pt.X - dx, pt.Y - dy);
+                newPoints.Add(newPt);
+            }
+            Trail.Points = newPoints;
+        }
+
+        /// <summary>
+        /// Add a new point in the trail of the circle.
+        /// </summary>
+        public void ExtendTrail()
+        {
+            double effectiveRadius = Radious - Shape.StrokeThickness / 2;
+
+            double x = center.X + effectiveRadius * Math.Cos(angle);
+            double y = center.Y + effectiveRadius * Math.Sin(angle);
+
+            var pts = Trail.Points;
+            pts.Add(new Point(x, y));
+            if (pts.Count > 10) 
+                pts.RemoveAt(0);
+        }
+       
+        /// <summary>
+        /// Rescale the circle and all of its elements by the given scale factor of the canvas to be visible properly.
+        /// </summary>
+        /// <param name="scale"></param>
+        public void Rescale()
+        {
+            RescaleCircle();
+            RescalePointer();
+            RescaleTrail();
+        }
+
+        /// <summary>
+        /// Rescales the circle to match the current scale and shape thickness of the parent element.
+        /// </summary>
+        public void RescaleCircle()
+        {
+            Shape.StrokeThickness = canvas.CircleThickness / canvas.CurrentScale;
+        }
+
+        /// <summary>
+        /// Rescales the pointer to match the current scale and pointer size of the parent element.
+        /// Must run before PositionPointer to ensure correct placement.
+        /// </summary>
+        public void RescalePointer()
+        {
+            Pointer.Width = canvas.PointerSize / canvas.CurrentScale;
+            Pointer.Height = canvas.PointerSize / canvas.CurrentScale;
+        }
+        
+        /// <summary>
+        /// Rescales the trail to match the current scale and trail thickness of the parent element.
+        /// </summary>
+        public void RescaleTrail()
+        {
+            Trail.StrokeThickness = canvas.TrailThickness / canvas.CurrentScale;
         }
 
         /// <summary>
@@ -150,6 +233,7 @@ namespace PrimesWithCircles.Controls
                 angle -= 2 * Math.PI;
 
             PositionPointer();
+            ExtendTrail();
 
             // we use accumulatedAngle to count laps only for the first lap that is the base of the whole system
             if (accumulatedAngle >= 2 * Math.PI)
@@ -179,25 +263,5 @@ namespace PrimesWithCircles.Controls
             return false;
         }
 
-        /// <summary>
-        /// Rescale the circle by the given scale factor of the canvas to be visible properly.
-        /// </summary>
-        /// <param name="scale"></param>
-        public void Rescale()
-        {
-            Shape.StrokeThickness = canvas.ShapeThickness / canvas.CurrentScale;
-            Trail.StrokeThickness = canvas.ShapeThickness / canvas.CurrentScale;
-            RescalePointer();
-        }
-
-        /// <summary>
-        /// Rescales the pointer to match the current scale and pointer size of the parent element.
-        /// Must run before PositionPointer to ensure correct placement.
-        /// </summary>
-        public void RescalePointer()
-        {
-            Pointer.Width = canvas.PointerSize / canvas.CurrentScale;
-            Pointer.Height = canvas.PointerSize / canvas.CurrentScale;
-        }
     }
 }
