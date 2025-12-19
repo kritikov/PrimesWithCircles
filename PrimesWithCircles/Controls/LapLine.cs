@@ -21,7 +21,7 @@ namespace PrimesWithCircles.Controls
                 Y1 = centerOfCanvas.Y,
                 X2 = centerOfCanvas.X,
                 Y2 = 20,
-                Stroke = Brushes.Red,
+                Stroke = Brushes.Blue,
                 StrokeThickness = canvas.LapLineThickness,
                 StrokeDashArray = [2, 2],
                 Visibility = canvas.DisplayLapLine ? Visibility.Visible : Visibility.Collapsed

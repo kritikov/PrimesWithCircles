@@ -34,6 +34,8 @@ namespace PrimesWithCircles.Controls
             }
         }
 
+        public double StartAngle { get; set; } = -Math.PI / 2;  // start at top: -π/2
+
         private int lapCounter = 0;
         public int LapCounter
         {
@@ -48,7 +50,7 @@ namespace PrimesWithCircles.Controls
             }
         }
 
-        private bool autoRotation = false;
+        private bool autoRotation = true;
         public bool AutoRotation
         {
             get => autoRotation;
@@ -62,7 +64,7 @@ namespace PrimesWithCircles.Controls
             }
         }
 
-        private double baseRadious = 30.0;
+        private double baseRadious = 80.0;
         public double BaseRadious
         {
             get => baseRadious;
@@ -77,10 +79,10 @@ namespace PrimesWithCircles.Controls
                 }
             }
         }
-        public double BaseRadiousMin => 10.0;
+        public double BaseRadiousMin => 20.0;
         public double BaseRadiousMax => 200.0;
 
-        private bool displayLapLine = false;
+        private bool displayLapLine = true;
         public bool DisplayLapLine
         {
             get => displayLapLine;
@@ -139,10 +141,7 @@ namespace PrimesWithCircles.Controls
             }
         }
 
-        public double RotationSpeedMin => 0.1;
-        public double RotationSpeedMax => 20.0;
-
-        private double rotationSpeed = 1;
+        private double rotationSpeed = 10;
         public double RotationSpeed
         {
             get => rotationSpeed;
@@ -152,14 +151,13 @@ namespace PrimesWithCircles.Controls
                 {
                     rotationSpeed = value;
                     OnPropertyChanged(nameof(RotationSpeed));
-
-                    // Και αν πρέπει να πολλαπλασιαστεί με Math.PI:
-                    BaseAngularSpeed = Math.PI * value;
                 }
             }
         }
+        public double RotationSpeedMin => 0.1;
+        public double RotationSpeedMax => 100.0;
 
-        private double pointerSize = 8.0;
+        private double pointerSize = 10.0;
         public double PointerSize
         {
             get => pointerSize;
@@ -210,7 +208,7 @@ namespace PrimesWithCircles.Controls
                 }
             }
         }
-        public double CircleThicknessMin => 1.0;
+        public double CircleThicknessMin => 3.0;
         public double CircleThicknessMax => 10.0;
 
         private double trailThickness = 2;
@@ -228,10 +226,9 @@ namespace PrimesWithCircles.Controls
                 }
             }
         }
-        public double TrailThicknessMin => 1.0;
+        public double TrailThicknessMin => 3.0;
         public double TrailThicknessMax => 10.0;
 
-        public double BaseAngularSpeed { get; set; } = Math.PI;
         public double CurrentScale { get; set; } = 1.0;
 
         public Visibility CirclesVisibility
@@ -411,7 +408,7 @@ namespace PrimesWithCircles.Controls
         /// <summary>
         /// Rotate all circles for elapsedSec seconds. Stops and handles lap logic for first circle.
         /// </summary>
-        public (bool FirstCompleted, bool SomeOtherCompleted) RotateCircles(double rotationStep)
+        public (bool FirstCompleted, bool SomeOtherCompleted) RotateCircles()
         {
             bool firstCompleted = false;
             bool someOtherCompleted = false;
@@ -419,12 +416,14 @@ namespace PrimesWithCircles.Controls
             // rotate all circles
             foreach (var circle in circles)
             {
-                bool lapCompleted = circle.RotateCircle(rotationStep, firstCompleted);
+                bool lapCompleted = circle.RotateCircle(firstCompleted);
                 if (circle.Number == 1 && lapCompleted)
                     firstCompleted = true;
 
                 if (circle.Number > 1 && firstCompleted && lapCompleted)
                     someOtherCompleted = true;
+
+                circle.RedrawCircle();
             }
 
             return (firstCompleted, someOtherCompleted);

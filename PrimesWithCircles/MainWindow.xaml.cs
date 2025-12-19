@@ -71,8 +71,8 @@ namespace PrimesWithCircles
         
         private void OnRendering(object? sender, EventArgs e)
         {
-            var rotateStep = 0.01;
-            RotateCircles(rotateStep);
+            if (isRotating)
+                RotateCircles();
         }
         
         private void RotateButton_Click(object sender, RoutedEventArgs e)
@@ -136,9 +136,9 @@ namespace PrimesWithCircles
         /// <summary>
         /// Rotate all circles for elapsedSec seconds. Stops and handles lap logic for first circle.
         /// </summary>
-        private void RotateCircles(double elapsedSec)
+        private void RotateCircles()
         {
-            var (FirstCompleted, SomeOtherCompleted) = RotationCanvas.RotateCircles(elapsedSec);
+            var (FirstCompleted, SomeOtherCompleted) = RotationCanvas.RotateCircles();
 
 
             // if the first circle completed a lap

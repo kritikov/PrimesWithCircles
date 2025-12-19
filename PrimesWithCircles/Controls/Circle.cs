@@ -15,24 +15,27 @@ namespace PrimesWithCircles.Controls
         public readonly Polyline Trail;
 
         private readonly RotationCanvas canvas;
-        private Point center;               // center of the circle in the canvas
-        private int lapCounter = 0;         // helper to synchronize laps with the first one avoiding drift from rendering loop and floating-point precision limits
-        private double angle;               // Angle in radians, canonicalized to [0, 2π)
-        private double accumulatedAngle;    // accumulated angle in radians (not canonicalized)
+        private SolidColorBrush circleColor = Brushes.LightGray;
+        private SolidColorBrush pointerColor = Brushes.Yellow;
+        private SolidColorBrush trailColor = Brushes.Red;
 
-
+        private Point center;          // center of the circle in the canvas
+        private int lapCounter = 0;    // helper to synchronize laps with the first one avoiding drift from rendering loop and floating-point precision limits
+        private double angle;          // Angle in radians, canonicalized to [0, 2π)
+        
         public Circle(RotationCanvas canvas, int number)
         {
             this.canvas = canvas;
             Radious = this.canvas.BaseRadious * number;
             Number = number;
             center = new Point(canvas.ActualWidth / 2, canvas.ActualHeight / 2);
+            angle = canvas.StartAngle;
 
             Shape = new Ellipse
             {
                 Width = Radious * 2,
                 Height = Radious * 2,
-                Stroke = Brushes.DimGray,
+                Stroke = circleColor,
                 StrokeThickness = this.canvas.CircleThickness,
                 Visibility = this.canvas.CirclesVisibility
             };
@@ -41,23 +44,19 @@ namespace PrimesWithCircles.Controls
             {
                 Width = this.canvas.PointerSize,
                 Height = this.canvas.PointerSize,
-                Fill = Brushes.Yellow,
+                Fill = pointerColor,
                 Stroke = Brushes.Black,
                 StrokeThickness = 1
             };
 
             Trail = new Polyline
             {
-                Stroke = Brushes.Red,
+                Stroke = trailColor,
                 StrokeThickness = this.canvas.TrailThickness,
                 Opacity = 0.5,
                 Visibility = this.canvas.TrailsVisibility
             };
-
-            // start at top: -π/2
-            angle = -Math.PI / 2;
-
-            accumulatedAngle = 0.0;
+            
         }
 
         /// <summary>
@@ -171,16 +170,31 @@ namespace PrimesWithCircles.Controls
         public void ExtendTrail()
         {
             double effectiveRadius = Radious - Shape.StrokeThickness / 2;
-
             double x = center.X + effectiveRadius * Math.Cos(angle);
             double y = center.Y + effectiveRadius * Math.Sin(angle);
 
             var pts = Trail.Points;
+
+            // Προσθήκη νέου σημείου
             pts.Add(new Point(x, y));
-            if (pts.Count > 10) 
+
+            // Κρατάμε μόνο τα τελευταία 10 σημεία
+            while (pts.Count > 10)
                 pts.RemoveAt(0);
+
+            // Αν θέλεις gradient στο opacity για πιο smooth trail:
+            if (Trail.Stroke is SolidColorBrush scb)
+            {
+                byte alphaStep = (byte)(255 / pts.Count);
+                for (int i = 0; i < pts.Count; i++)
+                {
+                    byte alpha = (byte)((i + 1) * alphaStep);
+                    Trail.Stroke = new SolidColorBrush(Color.FromArgb(alpha, scb.Color.R, scb.Color.G, scb.Color.B));
+                }
+            }
         }
-       
+
+
         /// <summary>
         /// Rescale the circle and all of its elements by the given scale factor of the canvas to be visible properly.
         /// </summary>
@@ -221,46 +235,55 @@ namespace PrimesWithCircles.Controls
         /// <summary>
         /// Rotate the circle for elapsedSec seconds. Returns true if the circle completed a lap
         /// </summary>
-        public bool RotateCircle(double rotationStep, bool firstLapCompleted)
+        public bool RotateCircle(bool firstLapCompleted)
         {
-            double angularSpeed = canvas.BaseAngularSpeed * (canvas.BaseRadious / Radious);
-            double delta = angularSpeed * rotationStep;
+            double linearSpeed = canvas.RotationSpeed;
+            double angularSpeed = linearSpeed / Radious;
 
-            angle += delta;
-            accumulatedAngle += delta;
+            angle += angularSpeed;
 
-            if (angle >= 2 * Math.PI)
-                angle -= 2 * Math.PI;
-
-            PositionPointer();
-            ExtendTrail();
-
-            // we use accumulatedAngle to count laps only for the first lap that is the base of the whole system
-            if (accumulatedAngle >= 2 * Math.PI)
+            // If is the first circle just rotate and check for lap completion
+            if (Number == 1)
             {
-                accumulatedAngle -= 2 * Math.PI;
-
-                if (Number == 1)
+                // if the angle is over the start point then reset it
+                if (angle >= canvas.StartAngle + 2 * Math.PI)
+                {
+                    angle = canvas.StartAngle;
                     return true;
+                }
             }
-
-            // We use lapCounter to track full laps for synchronization with the first circle,
-            // because accumulatedAngle would eventually drift due to floating-point precision
-            // limits and the continuous updates in the rendering loop.
-            if (firstLapCompleted)
+            else if (firstLapCompleted)
             {
+                // For the other circles we use lapCounter to track full laps for synchronization with the first circle,
+                // because the angle would eventually drift due to floating-point precision limits, frame rate variations
+                // and the continuous updates in the rendering loop.
+                
                 lapCounter++;
 
+                // if this circle has completed a lap then set the angle to start
                 if (lapCounter == Number)
                 {
                     lapCounter = 0;
-                    angle = -Math.PI / 2;
-                    accumulatedAngle = 0.0;
+                    angle = canvas.StartAngle;
                     return true;
+                }
+                // if the circle is not completed a lap then adjust the angle properly to keep in sync
+                else
+                {
+                    angle = canvas.StartAngle + 2 * Math.PI * lapCounter / Number ;
                 }
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Redraw the circle by repositioning the pointer and extending the trail.
+        /// </summary>
+        public void RedrawCircle()
+        {
+            PositionPointer();
+            ExtendTrail();
         }
 
     }
