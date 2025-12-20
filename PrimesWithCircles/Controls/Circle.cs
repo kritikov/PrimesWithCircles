@@ -182,16 +182,6 @@ namespace PrimesWithCircles.Controls
             while (pts.Count > 10)
                 pts.RemoveAt(0);
 
-            // Αν θέλεις gradient στο opacity για πιο smooth trail:
-            if (Trail.Stroke is SolidColorBrush scb)
-            {
-                byte alphaStep = (byte)(255 / pts.Count);
-                for (int i = 0; i < pts.Count; i++)
-                {
-                    byte alpha = (byte)((i + 1) * alphaStep);
-                    Trail.Stroke = new SolidColorBrush(Color.FromArgb(alpha, scb.Color.R, scb.Color.G, scb.Color.B));
-                }
-            }
         }
 
 
