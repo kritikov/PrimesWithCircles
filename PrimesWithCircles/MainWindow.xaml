@@ -25,22 +25,22 @@
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Background="#07000000">
+            <Grid Grid.Row="0" Background="{Binding BackgroundColor, ElementName=RotationCanvas}">
                 <TextBlock FontSize="40"
                    FontWeight="Bold"
                    Text="{Binding LapCounter, ElementName=RotationCanvas}"
                    TextAlignment="Center"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   Foreground="#FF85F176"/>
+                   Foreground="{Binding CounterColor, ElementName=RotationCanvas}"/>
             </Grid>
 
-            <Grid Grid.Row="1" Background="Black">
+            <Grid Grid.Row="1" Background="{Binding BackgroundColor, ElementName=RotationCanvas}">
                 <ScrollViewer x:Name="PrimesScroll" VerticalScrollBarVisibility="Auto" Visibility="{Binding DisplayPrimes, Converter={StaticResource BoolToVisibilityConverter}, ElementName=RotationCanvas}">
                     <TextBlock Text="{Binding Primes}"
                                TextAlignment="Left"
                                TextWrapping="Wrap"
-                               Foreground="#FF7689E8"
+                               Foreground="{Binding PrimesColor, ElementName=RotationCanvas}"
                                Padding="10"
                                FontSize="18"/>
                 </ScrollViewer>
@@ -121,7 +121,7 @@
         </Grid>
 
         <Grid Grid.Column="1" >
-            <controls:RotationCanvas x:Name="RotationCanvas" Background="Black"/>
+            <controls:RotationCanvas x:Name="RotationCanvas" Background="{Binding BackgroundColor, ElementName=RotationCanvas}"/>
         </Grid>
 
     </Grid>

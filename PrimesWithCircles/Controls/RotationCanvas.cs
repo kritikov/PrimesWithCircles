@@ -16,7 +16,7 @@ namespace PrimesWithCircles.Controls
         #region PROPERTIES AND FIELDS
 
         private readonly List<Circle> circles = [];
-        private LapLine lapLine;
+        private LapLine? lapLine;
         private ScaleTransform ZoomTransform { get; set; }
 
         private PresentationMode presentationMode = PresentationMode.SeekPrimes;
@@ -30,6 +30,47 @@ namespace PrimesWithCircles.Controls
                     presentationMode = value;
                     Reset();
                     OnPropertyChanged(nameof(PresentationMode));
+                }
+            }
+        }
+
+        public Theme Theme { get;set; }
+
+        public SolidColorBrush BackgroundColor
+        {
+            get => Theme.BackgroundColor;
+            set
+            {
+                if (Theme.BackgroundColor != value)
+                {
+                    Theme.BackgroundColor = value;
+                    OnPropertyChanged(nameof(BackgroundColor));
+                }
+            }
+        }
+
+        public SolidColorBrush CounterColor
+        {
+            get => Theme.CounterColor;
+            set
+            {
+                if (Theme.CounterColor != value)
+                {
+                    Theme.CounterColor = value;
+                    OnPropertyChanged(nameof(CounterColor));
+                }
+            }
+        }
+
+        public SolidColorBrush PrimesColor
+        {
+            get => Theme.PrimesColor;
+            set
+            {
+                if (Theme.PrimesColor != value)
+                {
+                    Theme.PrimesColor = value;
+                    OnPropertyChanged(nameof(PrimesColor));
                 }
             }
         }
@@ -184,7 +225,7 @@ namespace PrimesWithCircles.Controls
                 if (lapLineThickness != value)
                 {
                     lapLineThickness = value;
-                    lapLine.line.StrokeThickness = lapLineThickness;
+                    lapLine.Rescale();
                     OnPropertyChanged(nameof(LapLineThickness));
 
                 }
@@ -208,7 +249,7 @@ namespace PrimesWithCircles.Controls
                 }
             }
         }
-        public double CircleThicknessMin => 3.0;
+        public double CircleThicknessMin => 1.0;
         public double CircleThicknessMax => 10.0;
 
         private double trailThickness = 2;
@@ -251,6 +292,7 @@ namespace PrimesWithCircles.Controls
             ZoomTransform  = new ScaleTransform(CurrentScale, CurrentScale);
             LayoutTransform = ZoomTransform;
 
+            Theme = Themes.GetTheme(ThemeType.Light);
         }
 
         #endregion
@@ -273,14 +315,35 @@ namespace PrimesWithCircles.Controls
             circle.Center();
         }
 
+        /// <summary>
+        /// Add the lap line
+        /// </summary>
         public void AddLine()
         {
             lapLine = new LapLine(this);
             lapLine.Center();
-
             Children.Add(lapLine.line);
         }
 
+        /// <summary>
+        /// Update the colors from the theme
+        /// </summary>
+        public void UpdateFromTheme()
+        {
+            Background = Theme.BackgroundColor;
+
+            if (lapLine != null)
+                lapLine.UpdateFromTheme();
+            foreach (var circle in circles)
+            {
+                circle.UpdateFromTheme();
+            }
+        }
+
+        /// <summary>
+        /// Add a new circle for the given prime number
+        /// </summary>
+        /// <param name="number"></param>
         public void AddPrime(int number)
         {
             AddCircle(number);
@@ -446,8 +509,7 @@ namespace PrimesWithCircles.Controls
         /// <param name="currentScale"></param>
         public void RescaleAll()
         {
-            if (lapLine != null)
-                lapLine.Rescale();
+            lapLine?.Rescale();
 
             foreach (var circle in circles)
             {

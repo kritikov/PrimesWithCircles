@@ -15,9 +15,6 @@ namespace PrimesWithCircles.Controls
         public readonly Polyline Trail;
 
         private readonly RotationCanvas canvas;
-        private SolidColorBrush circleColor = Brushes.LightGray;
-        private SolidColorBrush pointerColor = Brushes.Yellow;
-        private SolidColorBrush trailColor = Brushes.Red;
 
         private Point center;          // center of the circle in the canvas
         private int lapCounter = 0;    // helper to synchronize laps with the first one avoiding drift from rendering loop and floating-point precision limits
@@ -35,7 +32,7 @@ namespace PrimesWithCircles.Controls
             {
                 Width = Radious * 2,
                 Height = Radious * 2,
-                Stroke = circleColor,
+                Stroke = canvas.Theme.CircleColor,
                 StrokeThickness = this.canvas.CircleThickness,
                 Visibility = this.canvas.CirclesVisibility
             };
@@ -44,19 +41,30 @@ namespace PrimesWithCircles.Controls
             {
                 Width = this.canvas.PointerSize,
                 Height = this.canvas.PointerSize,
-                Fill = pointerColor,
+                Fill = canvas.Theme.PointerColor,
                 Stroke = Brushes.Black,
                 StrokeThickness = 1
             };
 
             Trail = new Polyline
             {
-                Stroke = trailColor,
+                Stroke = canvas.Theme.TrailColor,
                 StrokeThickness = this.canvas.TrailThickness,
                 Opacity = 0.5,
                 Visibility = this.canvas.TrailsVisibility
             };
             
+        }
+
+        /// <summary>
+        /// Update the colors of the circle according to the given theme.
+        /// </summary>
+        /// <param name="theme"></param>
+        public void UpdateFromTheme()
+        {
+            Shape.Stroke = canvas.Theme.CircleColor;
+            Pointer.Fill = canvas.Theme.PointerColor;
+            Trail.Stroke = canvas.Theme.TrailColor;
         }
 
         /// <summary>
@@ -78,7 +86,6 @@ namespace PrimesWithCircles.Controls
             Shape.StrokeThickness = canvas.CircleThickness;
             //Rescale();
             PositionPointer();
-            //PositionTrail();
         }
 
         /// <summary>
@@ -184,7 +191,6 @@ namespace PrimesWithCircles.Controls
 
         }
 
-
         /// <summary>
         /// Rescale the circle and all of its elements by the given scale factor of the canvas to be visible properly.
         /// </summary>
@@ -220,6 +226,15 @@ namespace PrimesWithCircles.Controls
         public void RescaleTrail()
         {
             Trail.StrokeThickness = canvas.TrailThickness / canvas.CurrentScale;
+        }
+
+        /// <summary>
+        /// Redraw the circle by repositioning the pointer and extending the trail.
+        /// </summary>
+        public void RedrawCircle()
+        {
+            PositionPointer();
+            ExtendTrail();
         }
 
         /// <summary>
@@ -267,14 +282,6 @@ namespace PrimesWithCircles.Controls
             return false;
         }
 
-        /// <summary>
-        /// Redraw the circle by repositioning the pointer and extending the trail.
-        /// </summary>
-        public void RedrawCircle()
-        {
-            PositionPointer();
-            ExtendTrail();
-        }
-
+       
     }
 }

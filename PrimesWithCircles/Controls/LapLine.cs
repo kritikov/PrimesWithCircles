@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Reflection;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -21,11 +22,19 @@ namespace PrimesWithCircles.Controls
                 Y1 = centerOfCanvas.Y,
                 X2 = centerOfCanvas.X,
                 Y2 = 20,
-                Stroke = Brushes.Blue,
+                Stroke = canvas.Theme.LapLineColor,
                 StrokeThickness = canvas.LapLineThickness,
                 StrokeDashArray = [2, 2],
                 Visibility = canvas.DisplayLapLine ? Visibility.Visible : Visibility.Collapsed
             };
+        }
+
+        /// <summary>
+        /// Update the colors of the lap line according to the given theme.
+        /// </summary>
+        public void UpdateFromTheme()
+        {
+            line.Stroke = canvas.Theme.LapLineColor;
         }
 
         /// <summary>
@@ -40,6 +49,9 @@ namespace PrimesWithCircles.Controls
             line.Y1 = centerOfCanvas.Y;
         }
 
+        /// <summary>
+        /// Rescale the lap line thickness according to the current scale of the canvas.
+        /// </summary>
         public void Rescale()
         {
             line.StrokeThickness = canvas.LapLineThickness / canvas.CurrentScale;
