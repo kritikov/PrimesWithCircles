@@ -292,7 +292,7 @@ namespace PrimesWithCircles.Controls
             ZoomTransform  = new ScaleTransform(CurrentScale, CurrentScale);
             LayoutTransform = ZoomTransform;
 
-            Theme = Themes.GetTheme(ThemeType.Light);
+            Theme = Themes.GetTheme(ThemeType.ClassicNeon);
         }
 
         #endregion
