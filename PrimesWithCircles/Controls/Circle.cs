@@ -85,7 +85,7 @@ namespace PrimesWithCircles.Controls
         }
 
         /// <summary>
-        /// Set pointer sizes for or a list of circles
+        /// Set pointer sizes for a list of circles
         /// </summary>
         public static void UpdatePointerSizes(double size, List<Circle> circles)
         {
@@ -97,7 +97,7 @@ namespace PrimesWithCircles.Controls
         }
 
         /// <summary>
-        /// Set shape thicknesses for all circles
+        /// Set shape thicknesses for for a list of circles
         /// </summary>
         public static void UpdateCirclesThicknesses(double thickness, List<Circle> circles)
         {
@@ -105,6 +105,44 @@ namespace PrimesWithCircles.Controls
             foreach (var circle in circles)
             {
                 circle.UpdateCircleThickness();
+            }
+        }
+
+        /// <summary>
+        /// Set visibility for for a list of circles
+        /// </summary>
+        public static void UpdateCirclesVisibility(bool areVisible, List<Circle> circles)
+        {
+            Circle.DisplayCircles = areVisible;
+
+            foreach (var circle in circles)
+            {
+                circle.UpdateCircleVisibility();
+            }
+        }
+
+        /// <summary>
+        /// Set trail visibility for a list of circles
+        /// </summary>
+        public static void UpdateTrailsVisibility(bool areVisible, List<Circle> circles)
+        {
+            Circle.DisplayTrails = areVisible;
+
+            foreach (var circle in circles)
+            {
+                circle.UpdateTrailVisibility();
+            }
+        }
+
+        /// <summary>
+        /// Set trail thicknesses for a list of circles
+        /// </summary>
+        public static void UpdateTrailThicknesses(double trailThickness, List<Circle> circles)
+        {
+            Circle.TrailThickness = trailThickness;
+            foreach (var circle in circles)
+            {
+                circle.UpdateTrailThickness();
             }
         }
 

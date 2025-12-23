@@ -7,8 +7,9 @@ namespace PrimesWithCircles.Controls
 {
     public class LapLine
     {
-        public static double Thickness = 1.5;
         public Line line;
+
+        public double Thickness { get; set; } = 1.5;
 
         private bool display = true;
         public bool Display 
@@ -39,7 +40,7 @@ namespace PrimesWithCircles.Controls
                 X2 = centerOfCanvas.X,
                 Y2 = 20,
                 Stroke = canvas.Theme.LapLineColor,
-                StrokeThickness = LapLine.Thickness,
+                StrokeThickness = Thickness,
                 StrokeDashArray = [2, 2],
                 Visibility = canvas.DisplayLapLine ? Visibility.Visible : Visibility.Collapsed
             };
@@ -53,6 +54,12 @@ namespace PrimesWithCircles.Controls
             line.Stroke = canvas.Theme.LapLineColor;
         }
 
+        public void UpdateThickness(double thickness)
+        {
+            this.Thickness = thickness;
+            line.StrokeThickness = this.Thickness;
+            Rescale();
+        }
         /// <summary>
         /// Set the start point of the lap line to the center of the canvas.
         /// </summary>
@@ -70,7 +77,7 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void Rescale()
         {
-            line.StrokeThickness = LapLine.Thickness / canvas.CurrentScale;
+            line.StrokeThickness = this.Thickness / canvas.CurrentScale;
         }
     }
 }

@@ -72,7 +72,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Text="mode" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                <TextBlock Grid.Column="0" Text="mode" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                 <ComboBox Grid.Column="1"
                                           VerticalAlignment="Center"
                                           ItemsSource="{extensions:EnumDescription {x:Type enums:PresentationMode}}"
@@ -80,6 +80,23 @@
                                           SelectedValuePath="Value"
                                           SelectedValue="{Binding PresentationMode, Mode=TwoWay, ElementName=RotationCanvas}"
                                           IsEnabled="{Binding IsReseted, ElementName=RotationCanvas}"/>
+                            </Grid>
+                            
+                            <Grid Margin="0 5 0 5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="theme" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                <ComboBox
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    ItemsSource="{extensions:EnumDescription {x:Type enums:ThemeType}}"
+                                    DisplayMemberPath="Description"
+                                    SelectedValuePath="Value"
+                                    SelectedValue="{Binding ThemeType, Mode=TwoWay, ElementName=RotationCanvas}" />          
+
                             </Grid>
 
                             <TextBlock Text="base radious" Margin="0 5 0 5"/>

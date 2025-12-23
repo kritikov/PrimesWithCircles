@@ -1,6 +1,8 @@
 ﻿using PrimesWithCircles.Enums;
 using System.ComponentModel;
+using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -20,48 +22,9 @@ namespace PrimesWithCircles.Controls
         private LapLine lapLine;
         private ScaleTransform ZoomTransform { get; set; }
 
-        private PresentationMode presentationMode = PresentationMode.SeekPrimes;
-        public PresentationMode PresentationMode
-        {
-            get => presentationMode;
-            set
-            {
-                if (presentationMode != value)
-                {
-                    presentationMode = value;
-                    Reset();
-                    OnPropertyChanged(nameof(PresentationMode));
-                }
-            }
-        }
+        //public Theme Theme { get;set; }
 
-        public Theme Theme { get;set; }
-
-        public SolidColorBrush CounterColor
-        {
-            get => Theme.CounterColor;
-            set
-            {
-                if (Theme.CounterColor != value)
-                {
-                    Theme.CounterColor = value;
-                    OnPropertyChanged(nameof(CounterColor));
-                }
-            }
-        }
-
-        public SolidColorBrush PrimesColor
-        {
-            get => Theme.PrimesColor;
-            set
-            {
-                if (Theme.PrimesColor != value)
-                {
-                    Theme.PrimesColor = value;
-                    OnPropertyChanged(nameof(PrimesColor));
-                }
-            }
-        }
+        
 
         public event Action? PrimesChanged;
         private string primes = "";
@@ -109,111 +72,10 @@ namespace PrimesWithCircles.Controls
             }
         }
 
-        public SolidColorBrush BackgroundColor
-        {
-            get => Theme.BackgroundColor;
-            set
-            {
-                if (Theme.BackgroundColor != value)
-                {
-                    Theme.BackgroundColor = value;
-                    OnPropertyChanged(nameof(BackgroundColor));
-                }
-            }
-        }
-
-        public bool DisplayCircles
-        {
-            get => Circle.DisplayCircles;
-            set
-            {
-                if (Circle.DisplayCircles != value)
-                {
-                    Circle.DisplayCircles = value;
-                    UpdateCirclesVisibility();
-                    OnPropertyChanged(nameof(DisplayCircles));
-                }
-            }
-        }
-
-        public bool DisplayTrails
-        {
-            get => Circle.DisplayTrails;
-            set
-            {
-                if (Circle.DisplayTrails != value)
-                {
-                    Circle.DisplayTrails = value;
-                    UpdateTrailsVisibility();
-                    OnPropertyChanged(nameof(DisplayTrails));
-                }
-            }
-        }
-
-        private bool displayPrimes = true;
-        public bool DisplayPrimes
-        {
-            get => displayPrimes;
-            set
-            {
-                if (displayPrimes != value)
-                {
-                    displayPrimes = value;
-                    OnPropertyChanged(nameof(DisplayPrimes));
-                }
-            }
-        }
-
-
-       
-        public double LapLineThickness
-        {
-            get => LapLine.Thickness;
-            set
-            {
-                if (LapLine.Thickness != value)
-                {
-                    LapLine.Thickness = value;
-                    lapLine.Rescale();
-                    OnPropertyChanged(nameof(LapLineThickness));
-
-                }
-            }
-        }
-        public double LapLineThicknessMin => 1.0;
-        public double LapLineThicknessMax => 10.0;
-
-        public double CircleThickness
-        {
-            get => Circle.CircleThickness;
-            set
-            {
-                if (Circle.CircleThickness != value)
-                {
-                    UpdateCircleThicknesses(value);
-                    OnPropertyChanged(nameof(CircleThickness));
-                }
-            }
-        }
-        public double CircleThicknessMin => 1.0;
-        public double CircleThicknessMax => 10.0;
-        
-        public double TrailThickness
-        {
-            get => Circle.TrailThickness;
-            set
-            {
-                if (Circle.TrailThickness != value)
-                {
-                    Circle.TrailThickness = value;
-                    UpdateTrailThicknesses();
-                    OnPropertyChanged(nameof(TrailThickness));
-
-                }
-            }
-        }
-        public double TrailThicknessMin => 3.0;
-        public double TrailThicknessMax => 10.0;
+        public Theme Theme { get; set; }
+        public Brush PrimesColor => Theme.PrimesColor;
+        public Brush CounterColor => Theme.CounterColor;
+        public Brush BackgroundColor => Theme.BackgroundColor;
 
         public double CurrentScale { get; set; } = 1.0;
 
@@ -248,7 +110,7 @@ namespace PrimesWithCircles.Controls
                 canvas.RotationSpeed = 0;
         }
         public double RotationSpeedMin => 5;
-        public double RotationSpeedMax => 100.0;
+        public double RotationSpeedMax => 50.0;
 
         public bool IsReseted
         {
@@ -292,7 +154,7 @@ namespace PrimesWithCircles.Controls
                 return;
             }
 
-            canvas.UpdateBaseRadious(value);
+            Circle.UpdateBaseRadious(value, canvas.circles);
             canvas.AdjustZoom();
         }
         public double BaseRadiousMin => 20.0;
@@ -324,14 +186,114 @@ namespace PrimesWithCircles.Controls
             double clamped = Math.Clamp(value, canvas.PointerSizeMin, canvas.PointerSizeMax);
             if (!value.Equals(clamped))
             {
-                canvas.BaseRadious = clamped;
+                canvas.PointerSize = clamped;
                 return;
             }
 
-            canvas.UpdatePointerSizes(value);
+            Circle.UpdatePointerSizes(value, canvas.circles);
+
         }
         public double PointerSizeMin => 4.0;
         public double PointerSizeMax => 40.0;
+
+        public double CircleThickness
+        {
+            get => (double)GetValue(CircleThicknessProperty);
+            set => SetValue(CircleThicknessProperty, value);
+        }
+        public static readonly DependencyProperty CircleThicknessProperty =
+            DependencyProperty.Register(
+                nameof(CircleThickness),
+                typeof(double),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    Circle.CircleThickness, // default value
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnCircleThicknessChanged
+                    ));
+        private static void OnCircleThicknessChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            double value = (double)e.NewValue;
+
+            double clamped = Math.Clamp(value, canvas.CircleThicknessMin, canvas.CircleThicknessMax);
+            if (!value.Equals(clamped))
+            {
+                canvas.CircleThickness = clamped;
+                return;
+            }
+            Circle.UpdateCirclesThicknesses(value, canvas.circles);
+        }
+        public double CircleThicknessMin => 1.0;
+        public double CircleThicknessMax => 10.0;
+
+        public double TrailThickness
+        {
+            get => (double)GetValue(TrailThicknessProperty);
+            set => SetValue(TrailThicknessProperty, value);
+        }
+        public static readonly DependencyProperty TrailThicknessProperty =
+            DependencyProperty.Register(
+                nameof(TrailThickness),
+                typeof(double),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    Circle.TrailThickness, // default value
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnTrailThicknessChanged
+                    ));
+        private static void OnTrailThicknessChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            double value = (double)e.NewValue;
+
+            double clamped = Math.Clamp(value, canvas.TrailThicknessMin, canvas.TrailThicknessMax);
+            if (!value.Equals(clamped))
+            {
+                canvas.TrailThickness = clamped;
+                return;
+            }
+            Circle.UpdateTrailThicknesses(value, canvas.circles);
+        }
+        public double TrailThicknessMin => 3.0;
+        public double TrailThicknessMax => 10.0;
+
+        public double LapLineThickness
+        {
+            get => (double)GetValue(LapLineThicknessProperty);
+            set => SetValue(LapLineThicknessProperty, value);
+        }
+        public static readonly DependencyProperty LapLineThicknessProperty =
+            DependencyProperty.Register(
+                nameof(LapLineThickness),
+                typeof(double),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    1.5, // default value
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnLapLineThicknessChanged
+                    ));
+        private static void OnLapLineThicknessChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            double value = (double)e.NewValue;
+
+            double clamped = Math.Clamp(value, canvas.LapLineThicknessMin, canvas.LapLineThicknessMax);
+            if (!value.Equals(clamped))
+            {
+                canvas.LapLineThickness = clamped;
+                return;
+            }
+            canvas.lapLine.UpdateThickness(value);
+        }
+        public double LapLineThicknessMin => 1.0;
+        public double LapLineThicknessMax => 10.0;
 
 
         public bool DisplayLapLine
@@ -358,6 +320,119 @@ namespace PrimesWithCircles.Controls
 
             canvas.lapLine.Display = value;
         }
+
+        public bool DisplayCircles
+        {
+            get => (bool)GetValue(DisplayCirclesProperty);
+            set => SetValue(DisplayCirclesProperty, value);
+        }
+        public static readonly DependencyProperty DisplayCirclesProperty =
+            DependencyProperty.Register(
+                nameof(DisplayCircles),
+                typeof(bool),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    true, 
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnDisplayCirclesChanged
+                    ));
+        private static void OnDisplayCirclesChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            bool value = (bool)e.NewValue;
+
+            Circle.UpdateCirclesVisibility(value, canvas.circles);
+        }
+
+        public bool DisplayTrails
+        {
+            get => (bool)GetValue(DisplayTrailsProperty);
+            set => SetValue(DisplayTrailsProperty, value);
+        }
+        public static readonly DependencyProperty DisplayTrailsProperty =
+            DependencyProperty.Register(
+                nameof(DisplayTrails),
+                typeof(bool),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    true,
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnDisplayTrailsChanged
+                    ));
+        private static void OnDisplayTrailsChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            bool value = (bool)e.NewValue;
+
+            Circle.UpdateTrailsVisibility(value, canvas.circles);
+        }
+
+        public bool DisplayPrimes
+        {
+            get => (bool)GetValue(DisplayPrimesProperty);
+            set => SetValue(DisplayPrimesProperty, value);
+        }
+        public static readonly DependencyProperty DisplayPrimesProperty =
+            DependencyProperty.Register(
+                nameof(DisplayPrimes),
+                typeof(bool),
+                typeof(RotationCanvas),
+               new PropertyMetadata(true));
+
+
+        public PresentationMode PresentationMode
+        {
+            get => (PresentationMode)GetValue(PresentationModeProperty);
+            set => SetValue(PresentationModeProperty, value);
+        }
+
+        public static readonly DependencyProperty PresentationModeProperty =
+            DependencyProperty.Register(
+                nameof(PresentationMode),
+                typeof(PresentationMode),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    PresentationMode.SeekPrimes,   // default
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    OnPresentationModeChanged
+                ));
+        private static void OnPresentationModeChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+
+            if (Equals(e.OldValue, e.NewValue))
+                return;
+
+            canvas.Reset();
+        }
+
+        public ThemeType ThemeType
+        {
+            get => (ThemeType)GetValue(ThemeTypeProperty);
+            set => SetValue(ThemeTypeProperty, value);
+        }
+        public static readonly DependencyProperty ThemeTypeProperty =
+            DependencyProperty.Register(
+                nameof(ThemeType),
+                typeof(ThemeType),
+                typeof(RotationCanvas),
+                new PropertyMetadata(ThemeType.ClassicNeon, OnThemeTypeChanged)
+            );
+        private static void OnThemeTypeChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            canvas.Theme = Themes.GetTheme((ThemeType)e.NewValue);
+            canvas.ApplyTheme();
+        }
+
 
         #endregion
 
@@ -406,10 +481,15 @@ namespace PrimesWithCircles.Controls
         /// <summary>
         /// Update the colors from the theme
         /// </summary>
-        public void UpdateFromTheme()
+        public void ApplyTheme()
         {
+            OnPropertyChanged(nameof(PrimesColor));
+            OnPropertyChanged(nameof(CounterColor));
+            OnPropertyChanged(nameof(BackgroundColor));
+
             if (lapLine != null)
                 lapLine.UpdateFromTheme();
+
             foreach (var circle in circles)
             {
                 circle.UpdateFromTheme();
@@ -482,63 +562,6 @@ namespace PrimesWithCircles.Controls
             foreach (var circle in circles)
             {
                 circle.Center();
-            }
-        }
-
-        /// <summary>
-        /// Set radius for all circles based on BaseRadious
-        /// </summary>
-        public void UpdateBaseRadious(double baseRadious)
-        {
-            Circle.UpdateBaseRadious(baseRadious, circles);
-        }
-
-        /// <summary>
-        /// Set pointer sizes for all circles
-        /// </summary>
-        public void UpdatePointerSizes(double size)
-        {
-            Circle.UpdatePointerSizes(size, circles);
-        }
-
-        /// <summary>
-        /// Set shape thicknesses for all circles
-        /// </summary>
-        public void UpdateCircleThicknesses(double size)
-        {
-            Circle.UpdateCirclesThicknesses(size, circles);
-        }
-
-        /// <summary>
-        /// Set trail thicknesses for all circles
-        /// </summary>
-        public void UpdateTrailThicknesses()
-        {
-            foreach (var circle in circles)
-            {
-                circle.UpdateTrailThickness();
-            }
-        }
-
-        /// <summary>
-        /// Set shape visibility for all circles
-        /// </summary>
-        public void UpdateCirclesVisibility()
-        {
-            foreach (var circle in circles)
-            {
-                circle.UpdateCircleVisibility();
-            }
-        }
-
-        /// <summary>
-        /// Set trail visibility for all circles
-        /// </summary>
-        public void UpdateTrailsVisibility()
-        {
-            foreach (var circle in circles)
-            {
-                circle.UpdateTrailVisibility();
             }
         }
 
