@@ -73,6 +73,42 @@ namespace PrimesWithCircles.Controls
         }
 
         /// <summary>
+        /// Set radius for a list of circles based on BaseRadious
+        /// </summary>
+        public static void UpdateBaseRadious(double baseRadious, List<Circle> circles)
+        {
+            BaseRadious = baseRadious;
+            foreach (var circle in circles)
+            {
+                circle.UpdateRadious();
+            }
+        }
+
+        /// <summary>
+        /// Set pointer sizes for or a list of circles
+        /// </summary>
+        public static void UpdatePointerSizes(double size, List<Circle> circles)
+        {
+            PointerSize = size;
+            foreach (var circle in circles)
+            {
+                circle.UpdatePointerSize();
+            }
+        }
+
+        /// <summary>
+        /// Set shape thicknesses for all circles
+        /// </summary>
+        public static void UpdateCirclesThicknesses(double thickness, List<Circle> circles)
+        {
+            CircleThickness = thickness;
+            foreach (var circle in circles)
+            {
+                circle.UpdateCircleThickness();
+            }
+        }
+
+        /// <summary>
         /// Update the colors of the circle according to the given theme.
         /// </summary>
         /// <param name="theme"></param>

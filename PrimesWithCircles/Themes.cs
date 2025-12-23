@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PrimesWithCircles.Enums;
 using System.Windows.Media;
 
 namespace PrimesWithCircles
@@ -27,7 +23,6 @@ namespace PrimesWithCircles
         public SolidColorBrush CounterColor = counterColor;
         public SolidColorBrush PrimesColor = primesColor;
     };
-
 
     public class Themes
     {
@@ -211,26 +206,5 @@ namespace PrimesWithCircles
             return theme;
         }
     }
-
-
-    public enum ThemeType
-    {
-        Dark,
-        Light,
-        ClassicNeon,
-        Matrix,
-        ColdScience,
-        Synthwave,
-        Minimal,
-        LightEngineering,
-        SoftPaper,
-        ScienceLab,
-        WarmMinimal,
-        ModernFlatUI,
-        UltraMinimal,
-        DarkNeon,
-        DarkCyan,
-        WhiteboardPro,
-        BlackOrange
-    }
+    
 }

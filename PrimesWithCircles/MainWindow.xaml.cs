@@ -1,4 +1,5 @@
 ﻿using PrimesWithCircles.Controls;
+using PrimesWithCircles.Enums;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;

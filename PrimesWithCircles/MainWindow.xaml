@@ -5,6 +5,7 @@
         xmlns:controls="clr-namespace:PrimesWithCircles.Controls"
         xmlns:converters="clr-namespace:PrimesWithCircles.Converters"
         xmlns:extensions="clr-namespace:PrimesWithCircles.Extensions"
+        xmlns:enums="clr-namespace:PrimesWithCircles.Enums"
         WindowStartupLocation="CenterScreen" Background="Black">
 
     <Window.Resources>
@@ -74,7 +75,7 @@
                                 <TextBlock Text="mode" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                 <ComboBox Grid.Column="1"
                                           VerticalAlignment="Center"
-                                          ItemsSource="{extensions:EnumDescription {x:Type controls:PresentationMode}}"
+                                          ItemsSource="{extensions:EnumDescription {x:Type enums:PresentationMode}}"
                                           DisplayMemberPath="Description"
                                           SelectedValuePath="Value"
                                           SelectedValue="{Binding PresentationMode, Mode=TwoWay, ElementName=RotationCanvas}"

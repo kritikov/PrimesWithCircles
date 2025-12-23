@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using PrimesWithCircles.Enums;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,7 +17,7 @@ namespace PrimesWithCircles.Controls
         #region PROPERTIES AND FIELDS
 
         private readonly List<Circle> circles = [];
-        private LapLine? lapLine;
+        private LapLine lapLine;
         private ScaleTransform ZoomTransform { get; set; }
 
         private PresentationMode presentationMode = PresentationMode.SeekPrimes;
@@ -58,20 +59,6 @@ namespace PrimesWithCircles.Controls
                 {
                     Theme.PrimesColor = value;
                     OnPropertyChanged(nameof(PrimesColor));
-                }
-            }
-        }
-
-        private bool isReseted = true;
-        public bool IsReseted
-        {
-            get => isReseted;
-            set
-            {
-                if (isReseted != value)
-                {
-                    isReseted = value;
-                    OnPropertyChanged(nameof(IsReseted));
                 }
             }
         }
@@ -135,38 +122,6 @@ namespace PrimesWithCircles.Controls
             }
         }
 
-        public double BaseRadious
-        {
-            get => Circle.BaseRadious;
-            set
-            {
-                if (Circle.BaseRadious != value)
-                {
-                    Circle.BaseRadious = value;
-                    UpdateBaseRadious();
-                    AdjustZoom();
-                    OnPropertyChanged(nameof(BaseRadious));
-                }
-            }
-        }
-        public double BaseRadiousMin => 20.0;
-        public double BaseRadiousMax => 200.0;
-
-        private bool displayLapLine = true;
-        public bool DisplayLapLine
-        {
-            get => displayLapLine;
-            set
-            {
-                if (displayLapLine != value)
-                {
-                    displayLapLine = value;
-                    lapLine.line.Visibility = displayLapLine ? Visibility.Visible : Visibility.Hidden;
-                    OnPropertyChanged(nameof(DisplayLapLine));
-                }
-            }
-        }
-
         public bool DisplayCircles
         {
             get => Circle.DisplayCircles;
@@ -209,39 +164,8 @@ namespace PrimesWithCircles.Controls
             }
         }
 
-        private double rotationSpeed = 10;
-        public double RotationSpeed
-        {
-            get => rotationSpeed;
-            set
-            {
-                if (rotationSpeed != value)
-                {
-                    rotationSpeed = value;
-                    OnPropertyChanged(nameof(RotationSpeed));
-                }
-            }
-        }
-        public double RotationSpeedMin => 0.1;
-        public double RotationSpeedMax => 100.0;
-        
-        public double PointerSize
-        {
-            get => Circle.PointerSize;
-            set
-            {
-                if (Circle.PointerSize != value)
-                {
-                    Circle.PointerSize = value;
-                    UpdatePointerSizes();
-                    OnPropertyChanged(nameof(PointerSize));
 
-                }
-            }
-        }
-        public double PointerSizeMin => 4.0;
-        public double PointerSizeMax => 40.0;
-        
+       
         public double LapLineThickness
         {
             get => LapLine.Thickness;
@@ -266,10 +190,8 @@ namespace PrimesWithCircles.Controls
             {
                 if (Circle.CircleThickness != value)
                 {
-                    Circle.CircleThickness = value;
-                    UpdateCircleThicknesses();
+                    UpdateCircleThicknesses(value);
                     OnPropertyChanged(nameof(CircleThickness));
-
                 }
             }
         }
@@ -295,6 +217,147 @@ namespace PrimesWithCircles.Controls
 
         public double CurrentScale { get; set; } = 1.0;
 
+        #endregion
+
+
+        #region Dependency Properties
+
+        public double RotationSpeed
+        {
+            get => (double)GetValue(RotationSpeedProperty);
+            set => SetValue(RotationSpeedProperty, value);
+        }
+        public static readonly DependencyProperty RotationSpeedProperty =
+            DependencyProperty.Register(
+                nameof(RotationSpeed),
+                typeof(double),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    10.0, // default value
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnRotationSpeedChanged
+                    ));
+        private static void OnRotationSpeedChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+
+            double newSpeed = (double)e.NewValue;
+            if (newSpeed < 0)
+                canvas.RotationSpeed = 0;
+        }
+        public double RotationSpeedMin => 5;
+        public double RotationSpeedMax => 100.0;
+
+        public bool IsReseted
+        {
+            get => (bool)GetValue(IsResetedProperty);
+            set => SetValue(IsResetedProperty, value);
+        }
+        public static readonly DependencyProperty IsResetedProperty =
+            DependencyProperty.Register(
+                nameof(IsReseted),
+                typeof(bool),
+                typeof(RotationCanvas),
+                new PropertyMetadata(true));
+
+
+        public double BaseRadious
+        {
+            get => (double)GetValue(BaseRadiousProperty);
+            set => SetValue(BaseRadiousProperty, value);
+        }
+        public static readonly DependencyProperty BaseRadiousProperty =
+            DependencyProperty.Register(
+                nameof(BaseRadious),
+                typeof(double),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    Circle.BaseRadious, // default value
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnBaseRadiousChanged
+                    ));
+        private static void OnBaseRadiousChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            double value = (double)e.NewValue;
+
+            double clamped = Math.Clamp(value, canvas.BaseRadiousMin, canvas.BaseRadiousMax);
+            if (!value.Equals(clamped))
+            {
+                canvas.BaseRadious = clamped;
+                return;
+            }
+
+            canvas.UpdateBaseRadious(value);
+            canvas.AdjustZoom();
+        }
+        public double BaseRadiousMin => 20.0;
+        public double BaseRadiousMax => 200.0;
+
+
+        public double PointerSize
+        {
+            get => (double)GetValue(PointerSizeProperty);
+            set => SetValue(PointerSizeProperty, value);
+        }
+        public static readonly DependencyProperty PointerSizeProperty =
+            DependencyProperty.Register(
+                nameof(PointerSize),
+                typeof(double),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    Circle.PointerSize, // default value
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnPointerSizeChanged
+                    ));
+        private static void OnPointerSizeChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            double value = (double)e.NewValue;
+
+            double clamped = Math.Clamp(value, canvas.PointerSizeMin, canvas.PointerSizeMax);
+            if (!value.Equals(clamped))
+            {
+                canvas.BaseRadious = clamped;
+                return;
+            }
+
+            canvas.UpdatePointerSizes(value);
+        }
+        public double PointerSizeMin => 4.0;
+        public double PointerSizeMax => 40.0;
+
+
+        public bool DisplayLapLine
+        {
+            get => (bool)GetValue(DisplayLapLineProperty);
+            set => SetValue(DisplayLapLineProperty, value);
+        }
+        public static readonly DependencyProperty DisplayLapLineProperty =
+            DependencyProperty.Register(
+                nameof(DisplayLapLine),
+                typeof(bool),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    true, // default value
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnDisplayLapLineChanged
+                    ));
+        private static void OnDisplayLapLineChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            bool value = (bool)e.NewValue;
+
+            canvas.lapLine.Display = value;
+        }
 
         #endregion
 
@@ -307,6 +370,7 @@ namespace PrimesWithCircles.Controls
             LayoutTransform = ZoomTransform;
 
             Theme = Themes.GetTheme(ThemeType.ClassicNeon);
+            lapLine = new LapLine(this);
         }
 
         #endregion
@@ -424,34 +488,25 @@ namespace PrimesWithCircles.Controls
         /// <summary>
         /// Set radius for all circles based on BaseRadious
         /// </summary>
-        public void UpdateBaseRadious()
+        public void UpdateBaseRadious(double baseRadious)
         {
-            foreach (var circle in circles)
-            {
-                circle.UpdateRadious();
-            }
+            Circle.UpdateBaseRadious(baseRadious, circles);
         }
 
         /// <summary>
         /// Set pointer sizes for all circles
         /// </summary>
-        public void UpdatePointerSizes()
+        public void UpdatePointerSizes(double size)
         {
-            foreach (var circle in circles)
-            {
-                circle.UpdatePointerSize();
-            }
+            Circle.UpdatePointerSizes(size, circles);
         }
 
         /// <summary>
         /// Set shape thicknesses for all circles
         /// </summary>
-        public void UpdateCircleThicknesses()
+        public void UpdateCircleThicknesses(double size)
         {
-            foreach (var circle in circles)
-            {
-                circle.UpdateCircleThickness();
-            }
+            Circle.UpdateCirclesThicknesses(size, circles);
         }
 
         /// <summary>

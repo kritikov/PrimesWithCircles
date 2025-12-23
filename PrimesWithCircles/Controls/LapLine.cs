@@ -8,8 +8,22 @@ namespace PrimesWithCircles.Controls
     public class LapLine
     {
         public static double Thickness = 1.5;
-
         public Line line;
+
+        private bool display = true;
+        public bool Display 
+        { 
+            get => display;
+            set
+            {
+                if (display != value)
+                {
+                    display = value;
+                    line.Visibility = display ? Visibility.Visible : Visibility.Hidden;
+                }
+            }
+        }
+        
         private readonly RotationCanvas canvas;
 
         public LapLine(RotationCanvas canvas)

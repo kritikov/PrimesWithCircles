@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace PrimesWithCircles.Controls
+namespace PrimesWithCircles.Enums
 {
     public enum PresentationMode
     {
