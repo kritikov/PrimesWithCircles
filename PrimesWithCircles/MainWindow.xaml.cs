@@ -11,36 +11,6 @@ namespace PrimesWithCircles
 
         private bool isRotating = false;
 
-        private bool isReseted = true;
-        public bool IsReseted
-        {
-            get => isReseted;
-            set
-            {
-                if (isReseted != value)
-                {
-                    isReseted = value;
-                    OnPropertyChanged(nameof(IsReseted));
-                }
-            }
-        }
-
-        private string primes = "";
-        public string Primes
-        {
-            get => primes;
-            set
-            {
-                if (primes != value)
-                {
-                    primes = value;
-                    OnPropertyChanged(nameof(Primes));
-                    PrimesScroll?.ScrollToEnd();
-                }
-            }
-        }
-
-
         public MainWindow()
         {
             InitializeComponent();
@@ -48,8 +18,11 @@ namespace PrimesWithCircles
 
             Loaded += OnLoaded;
             RotationCanvas.SizeChanged += OnCanvasSizeChanged;
+            RotationCanvas.PrimesChanged += () =>
+            {
+                PrimesScroll.ScrollToEnd();
+            };
         }
-
 
         #region EVENTS
 
@@ -80,7 +53,7 @@ namespace PrimesWithCircles
             // if not allready rotating, start rotating
             if (!isRotating)
             {
-                IsReseted = false;
+                RotationCanvas.IsReseted = false;
                 StartRotation();
             }
         }
@@ -99,7 +72,6 @@ namespace PrimesWithCircles
         #endregion
 
 
-
         #region METHODS
 
         /// <summary>
@@ -108,9 +80,6 @@ namespace PrimesWithCircles
         private void ResetData()
         {
             RotationCanvas.Reset();
-            
-            Primes = $"primes: {RotationCanvas.LapCounter}";
-            IsReseted = true;
         }
 
         /// <summary>
@@ -165,16 +134,9 @@ namespace PrimesWithCircles
         private void AddPrime(int number) {
 
             RotationCanvas.AddPrime(RotationCanvas.LapCounter);
-
-            if (Primes.Length > 0)
-                Primes += ", ";
-
-            Primes += number.ToString();
         }
-
 
         #endregion
 
-        
     }
 }

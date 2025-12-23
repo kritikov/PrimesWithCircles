@@ -7,6 +7,8 @@ namespace PrimesWithCircles.Controls
 {
     public class LapLine
     {
+        public static double Thickness = 1.5;
+
         public Line line;
         private readonly RotationCanvas canvas;
 
@@ -23,7 +25,7 @@ namespace PrimesWithCircles.Controls
                 X2 = centerOfCanvas.X,
                 Y2 = 20,
                 Stroke = canvas.Theme.LapLineColor,
-                StrokeThickness = canvas.LapLineThickness,
+                StrokeThickness = LapLine.Thickness,
                 StrokeDashArray = [2, 2],
                 Visibility = canvas.DisplayLapLine ? Visibility.Visible : Visibility.Collapsed
             };
@@ -54,7 +56,7 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void Rescale()
         {
-            line.StrokeThickness = canvas.LapLineThickness / canvas.CurrentScale;
+            line.StrokeThickness = LapLine.Thickness / canvas.CurrentScale;
         }
     }
 }

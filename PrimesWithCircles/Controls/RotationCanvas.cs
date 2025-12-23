@@ -36,19 +36,6 @@ namespace PrimesWithCircles.Controls
 
         public Theme Theme { get;set; }
 
-        public SolidColorBrush BackgroundColor
-        {
-            get => Theme.BackgroundColor;
-            set
-            {
-                if (Theme.BackgroundColor != value)
-                {
-                    Theme.BackgroundColor = value;
-                    OnPropertyChanged(nameof(BackgroundColor));
-                }
-            }
-        }
-
         public SolidColorBrush CounterColor
         {
             get => Theme.CounterColor;
@@ -71,6 +58,36 @@ namespace PrimesWithCircles.Controls
                 {
                     Theme.PrimesColor = value;
                     OnPropertyChanged(nameof(PrimesColor));
+                }
+            }
+        }
+
+        private bool isReseted = true;
+        public bool IsReseted
+        {
+            get => isReseted;
+            set
+            {
+                if (isReseted != value)
+                {
+                    isReseted = value;
+                    OnPropertyChanged(nameof(IsReseted));
+                }
+            }
+        }
+
+        public event Action? PrimesChanged;
+        private string primes = "";
+        public string Primes
+        {
+            get => primes;
+            set
+            {
+                if (primes != value)
+                {
+                    primes = value;
+                    OnPropertyChanged(nameof(Primes));
+                    PrimesChanged?.Invoke();
                 }
             }
         }
@@ -105,15 +122,27 @@ namespace PrimesWithCircles.Controls
             }
         }
 
-        private double baseRadious = 80.0;
-        public double BaseRadious
+        public SolidColorBrush BackgroundColor
         {
-            get => baseRadious;
+            get => Theme.BackgroundColor;
             set
             {
-                if (baseRadious != value)
+                if (Theme.BackgroundColor != value)
                 {
-                    baseRadious = value;
+                    Theme.BackgroundColor = value;
+                    OnPropertyChanged(nameof(BackgroundColor));
+                }
+            }
+        }
+
+        public double BaseRadious
+        {
+            get => Circle.BaseRadious;
+            set
+            {
+                if (Circle.BaseRadious != value)
+                {
+                    Circle.BaseRadious = value;
                     UpdateBaseRadious();
                     AdjustZoom();
                     OnPropertyChanged(nameof(BaseRadious));
@@ -138,30 +167,28 @@ namespace PrimesWithCircles.Controls
             }
         }
 
-        private bool displayCircles = true;
         public bool DisplayCircles
         {
-            get => displayCircles;
+            get => Circle.DisplayCircles;
             set
             {
-                if (displayCircles != value)
+                if (Circle.DisplayCircles != value)
                 {
-                    displayCircles = value;
+                    Circle.DisplayCircles = value;
                     UpdateCirclesVisibility();
                     OnPropertyChanged(nameof(DisplayCircles));
                 }
             }
         }
 
-        private bool displayTrails = true;
         public bool DisplayTrails
         {
-            get => displayTrails;
+            get => Circle.DisplayTrails;
             set
             {
-                if (displayTrails != value)
+                if (Circle.DisplayTrails != value)
                 {
-                    displayTrails = value;
+                    Circle.DisplayTrails = value;
                     UpdateTrailsVisibility();
                     OnPropertyChanged(nameof(DisplayTrails));
                 }
@@ -197,16 +224,15 @@ namespace PrimesWithCircles.Controls
         }
         public double RotationSpeedMin => 0.1;
         public double RotationSpeedMax => 100.0;
-
-        private double pointerSize = 10.0;
+        
         public double PointerSize
         {
-            get => pointerSize;
+            get => Circle.PointerSize;
             set
             {
-                if (pointerSize != value)
+                if (Circle.PointerSize != value)
                 {
-                    pointerSize = value;
+                    Circle.PointerSize = value;
                     UpdatePointerSizes();
                     OnPropertyChanged(nameof(PointerSize));
 
@@ -215,16 +241,15 @@ namespace PrimesWithCircles.Controls
         }
         public double PointerSizeMin => 4.0;
         public double PointerSizeMax => 40.0;
-
-        private double lapLineThickness = 1.5;
+        
         public double LapLineThickness
         {
-            get => lapLineThickness;
+            get => LapLine.Thickness;
             set
             {
-                if (lapLineThickness != value)
+                if (LapLine.Thickness != value)
                 {
-                    lapLineThickness = value;
+                    LapLine.Thickness = value;
                     lapLine.Rescale();
                     OnPropertyChanged(nameof(LapLineThickness));
 
@@ -234,15 +259,14 @@ namespace PrimesWithCircles.Controls
         public double LapLineThicknessMin => 1.0;
         public double LapLineThicknessMax => 10.0;
 
-        private double circleThickness = 1.5;
         public double CircleThickness
         {
-            get => circleThickness;
+            get => Circle.CircleThickness;
             set
             {
-                if (circleThickness != value)
+                if (Circle.CircleThickness != value)
                 {
-                    circleThickness = value;
+                    Circle.CircleThickness = value;
                     UpdateCircleThicknesses();
                     OnPropertyChanged(nameof(CircleThickness));
 
@@ -251,16 +275,15 @@ namespace PrimesWithCircles.Controls
         }
         public double CircleThicknessMin => 1.0;
         public double CircleThicknessMax => 10.0;
-
-        private double trailThickness = 2;
+        
         public double TrailThickness
         {
-            get => trailThickness;
+            get => Circle.TrailThickness;
             set
             {
-                if (trailThickness != value)
+                if (Circle.TrailThickness != value)
                 {
-                    trailThickness = value;
+                    Circle.TrailThickness = value;
                     UpdateTrailThicknesses();
                     OnPropertyChanged(nameof(TrailThickness));
 
@@ -272,15 +295,6 @@ namespace PrimesWithCircles.Controls
 
         public double CurrentScale { get; set; } = 1.0;
 
-        public Visibility CirclesVisibility
-        {
-            get => DisplayCircles == true ? Visibility.Visible : Visibility.Hidden;
-        }
-
-        public Visibility TrailsVisibility
-        {
-            get => DisplayTrails == true ? Visibility.Visible : Visibility.Hidden;
-        }
 
         #endregion
 
@@ -330,8 +344,6 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void UpdateFromTheme()
         {
-            Background = Theme.BackgroundColor;
-
             if (lapLine != null)
                 lapLine.UpdateFromTheme();
             foreach (var circle in circles)
@@ -348,6 +360,10 @@ namespace PrimesWithCircles.Controls
         {
             AddCircle(number);
             AdjustZoom();
+
+            if (Primes.Length > 0)
+                Primes += ", ";
+            Primes += number.ToString();
         }
 
         /// <summary>
@@ -357,6 +373,7 @@ namespace PrimesWithCircles.Controls
         {
             circles.Clear();
             Children.Clear();
+            IsReseted = true;
             CurrentScale = 1.0;
             ZoomTransform.ScaleX = CurrentScale;
             ZoomTransform.ScaleY = CurrentScale;
@@ -384,6 +401,8 @@ namespace PrimesWithCircles.Controls
                 LapCounter = 2;
                 DisplayPrimes = true;
             }
+
+            Primes = $"primes: {LapCounter}";
 
             AdjustZoom();
         }
@@ -453,7 +472,7 @@ namespace PrimesWithCircles.Controls
         {
             foreach (var circle in circles)
             {
-                circle.UpdateShapeVisibility();
+                circle.UpdateCircleVisibility();
             }
         }
 

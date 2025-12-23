@@ -7,7 +7,23 @@ namespace PrimesWithCircles.Controls
 {
     public class Circle
     {
-        
+        public static double BaseRadious { get; set; }  = 80.0;
+        public static double CircleThickness { get; set; } = 1.5;
+        public static double PointerSize { get; set; } = 10.0;
+        public static double TrailThickness { get; set; } = 2;
+        public static bool DisplayCircles { get; set; } = true;
+        public static Visibility CircleVisibility
+        {
+            get => Circle.DisplayCircles == true ? Visibility.Visible : Visibility.Hidden;
+
+        }
+        public static bool DisplayTrails { get; set; } = true;
+        public static Visibility TrailVisibility
+        {
+            get => Circle.DisplayTrails == true ? Visibility.Visible : Visibility.Hidden;
+
+        }
+
         public double Radious { get; set; }
         public int Number { get; set; }
         public readonly Ellipse Shape;
@@ -15,15 +31,15 @@ namespace PrimesWithCircles.Controls
         public readonly Polyline Trail;
 
         private readonly RotationCanvas canvas;
-
         private Point center;          // center of the circle in the canvas
         private int lapCounter = 0;    // helper to synchronize laps with the first one avoiding drift from rendering loop and floating-point precision limits
         private double angle;          // Angle in radians, canonicalized to [0, 2π)
+
         
         public Circle(RotationCanvas canvas, int number)
         {
             this.canvas = canvas;
-            Radious = this.canvas.BaseRadious * number;
+            Radious = Circle.BaseRadious * number;
             Number = number;
             center = new Point(canvas.ActualWidth / 2, canvas.ActualHeight / 2);
             angle = canvas.StartAngle;
@@ -34,13 +50,13 @@ namespace PrimesWithCircles.Controls
                 Height = Radious * 2,
                 Stroke = canvas.Theme.CircleColor,
                 StrokeThickness = this.canvas.CircleThickness,
-                Visibility = this.canvas.CirclesVisibility
+                Visibility = Circle.CircleVisibility
             };
 
             Pointer = new Ellipse
             {
-                Width = this.canvas.PointerSize,
-                Height = this.canvas.PointerSize,
+                Width = Circle.PointerSize,
+                Height = Circle.PointerSize,
                 Fill = canvas.Theme.PointerColor,
                 Stroke = Brushes.Black,
                 StrokeThickness = 1
@@ -49,9 +65,9 @@ namespace PrimesWithCircles.Controls
             Trail = new Polyline
             {
                 Stroke = canvas.Theme.TrailColor,
-                StrokeThickness = this.canvas.TrailThickness,
+                StrokeThickness = Circle.TrailThickness,
                 Opacity = 0.5,
-                Visibility = this.canvas.TrailsVisibility
+                Visibility = Circle.TrailVisibility
             };
             
         }
@@ -68,60 +84,60 @@ namespace PrimesWithCircles.Controls
         }
 
         /// <summary>
-        /// Set the radious of the circle according to its number and the base radious of the parent canvas.
+        /// Set the radious of the circle according to its number and the base radious.
         /// </summary>
         public void UpdateRadious()
         {
-            Radious = canvas.BaseRadious * Number;
+            Radious = Circle.BaseRadious * Number;
             Shape.Width = Radious * 2;
             Shape.Height = Radious * 2;
             Center();
         }
  
         /// <summary>
-        /// Set the thickness of the shape according to the parent canvas setting.
+        /// Set the thickness of the shape according to the common setting.
         /// </summary>
         public void UpdateCircleThickness()
         {
-            Shape.StrokeThickness = canvas.CircleThickness;
+            Shape.StrokeThickness = Circle.CircleThickness;
             //Rescale();
             PositionPointer();
         }
 
         /// <summary>
-        /// Set the size of the pointer according to the parent canvas setting.
+        /// Set the size of the pointer according to the common setting.
         /// </summary>
         public void UpdatePointerSize()
         {
-            Pointer.Width = canvas.PointerSize;
-            Pointer.Height = canvas.PointerSize;
+            Pointer.Width = Circle.PointerSize;
+            Pointer.Height = Circle.PointerSize;
             RescalePointer();
             PositionPointer();
         }
 
         /// <summary>
-        /// Set the thickness of the trail according to the parent canvas setting.
+        /// Set the thickness of the trail according to the common setting.
         /// </summary>
         public void UpdateTrailThickness()
         {
-            Trail.StrokeThickness = canvas.TrailThickness;
+            Trail.StrokeThickness = Circle.TrailThickness;
             RescaleTrail();
         }
 
         /// <summary>
-        /// Set the visibility of the circle shape according to the parent canvas setting.
+        /// Set the visibility of the circle shape according to the common setting.
         /// </summary>
-        public void UpdateShapeVisibility()
+        public void UpdateCircleVisibility()
         {
-            Shape.Visibility = canvas.CirclesVisibility;
+            Shape.Visibility = Circle.CircleVisibility;
         }
 
         /// <summary>
-        /// Set the visibility of the circle trail according to the parent canvas setting.
+        /// Set the visibility of the circle trail according to the common setting.
         /// </summary>
         public void UpdateTrailVisibility()
         {
-            Trail.Visibility = canvas.TrailsVisibility;
+            Trail.Visibility = Circle.TrailVisibility;
         }
 
         /// <summary>
@@ -207,7 +223,7 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void RescaleCircle()
         {
-            Shape.StrokeThickness = canvas.CircleThickness / canvas.CurrentScale;
+            Shape.StrokeThickness =  Circle.CircleThickness / canvas.CurrentScale;
         }
 
         /// <summary>
@@ -216,8 +232,8 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void RescalePointer()
         {
-            Pointer.Width = canvas.PointerSize / canvas.CurrentScale;
-            Pointer.Height = canvas.PointerSize / canvas.CurrentScale;
+            Pointer.Width = Circle.PointerSize / canvas.CurrentScale;
+            Pointer.Height = Circle.PointerSize / canvas.CurrentScale;
         }
         
         /// <summary>
@@ -225,7 +241,7 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void RescaleTrail()
         {
-            Trail.StrokeThickness = canvas.TrailThickness / canvas.CurrentScale;
+            Trail.StrokeThickness = Circle.TrailThickness / canvas.CurrentScale;
         }
 
         /// <summary>

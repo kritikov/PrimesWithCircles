@@ -37,7 +37,7 @@
 
             <Grid Grid.Row="1" Background="{Binding BackgroundColor, ElementName=RotationCanvas}">
                 <ScrollViewer x:Name="PrimesScroll" VerticalScrollBarVisibility="Auto" Visibility="{Binding DisplayPrimes, Converter={StaticResource BoolToVisibilityConverter}, ElementName=RotationCanvas}">
-                    <TextBlock Text="{Binding Primes}"
+                    <TextBlock Text="{Binding Primes, ElementName=RotationCanvas}"
                                TextAlignment="Left"
                                TextWrapping="Wrap"
                                Foreground="{Binding PrimesColor, ElementName=RotationCanvas}"
@@ -50,8 +50,8 @@
                 <TabControl>
                     <TabItem Header="play">
                         <StackPanel Margin="10 10 10 20">
-                            <CheckBox Content="Auto rotation" IsChecked="{Binding AutoRotation, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
-                            <TextBlock Text="Rotation speed" Margin="0 5 0 5"/>
+                            <CheckBox Content="auto rotation" IsChecked="{Binding AutoRotation, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
+                            <TextBlock Text="rotation speed" Margin="0 5 0 5"/>
                             <Slider Minimum="{Binding RotationSpeedMin, ElementName=RotationCanvas}"
                                     Maximum="{Binding RotationSpeedMax, ElementName=RotationCanvas}"
                                     TickFrequency="0.02"
@@ -63,51 +63,62 @@
                             </StackPanel>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="settings">
+                    <TabItem Header="start up">
                         <StackPanel Margin="10 10 10 20">
-                            <TextBlock Text="Radious" Margin="0 5 0 5"/>
+                            <Grid Margin="0 5 0 5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="mode" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                <ComboBox Grid.Column="1"
+                                          VerticalAlignment="Center"
+                                          ItemsSource="{extensions:EnumDescription {x:Type controls:PresentationMode}}"
+                                          DisplayMemberPath="Description"
+                                          SelectedValuePath="Value"
+                                          SelectedValue="{Binding PresentationMode, Mode=TwoWay, ElementName=RotationCanvas}"
+                                          IsEnabled="{Binding IsReseted, ElementName=RotationCanvas}"/>
+                            </Grid>
+
+                            <TextBlock Text="base radious" Margin="0 5 0 5"/>
                             <Slider Minimum="{Binding BaseRadiousMin, ElementName=RotationCanvas}"
-                                    Maximum="{Binding BaseRadiousMax, ElementName=RotationCanvas}" 
+                                    Maximum="{Binding BaseRadiousMax, ElementName=RotationCanvas}"
                                     Value="{Binding BaseRadious, ElementName=RotationCanvas}"
                                     TickFrequency="5"
-                                    IsEnabled="{Binding IsReseted}"/>
-
-                            <TextBlock Text="Lap line thickness" Margin="0 5 0 5"/>
+                                    IsEnabled="{Binding IsReseted, ElementName=RotationCanvas}"/>   
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="settings">
+                        <StackPanel Margin="10 10 10 20">
+                            <TextBlock Text="lap line thickness" Margin="0 5 0 5"/>
                             <Slider Minimum="{Binding LapLineThicknessMin, ElementName=RotationCanvas}"
                                     Maximum="{Binding LapLineThicknessMax, ElementName=RotationCanvas}"
                                     TickFrequency="1" 
                                     Value="{Binding LapLineThickness, ElementName=RotationCanvas}"/>
 
-                            <TextBlock Text="Circle thickness" Margin="0 5 0 5"/>
+                            <TextBlock Text="circle thickness" Margin="0 5 0 5"/>
                             <Slider Minimum="{Binding CircleThicknessMin, ElementName=RotationCanvas}"
                                     Maximum="{Binding CircleThicknessMax, ElementName=RotationCanvas}"
                                     TickFrequency="1" 
                                     Value="{Binding CircleThickness, ElementName=RotationCanvas}"/>
 
-                            <TextBlock Text="Pointer size" Margin="0 5 0 5"/>
+                            <TextBlock Text="pointer size" Margin="0 5 0 5"/>
                             <Slider Minimum="{Binding PointerSizeMin, ElementName=RotationCanvas}"
                                     Maximum="{Binding PointerSizeMax, ElementName=RotationCanvas}"
                                     TickFrequency="1" 
                                     Value="{Binding PointerSize, ElementName=RotationCanvas}"/>
 
-                            <TextBlock Text="Trail thickness" Margin="0 5 0 5"/>
+                            <TextBlock Text="trail thickness" Margin="0 5 0 5"/>
                             <Slider Minimum="{Binding TrailThicknessMin, ElementName=RotationCanvas}"
                                     Maximum="{Binding TrailThicknessMax, ElementName=RotationCanvas}"
                                     TickFrequency="1" 
                                     Value="{Binding TrailThickness, ElementName=RotationCanvas}"/>
-
-
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="mode">
+                    
+                    <TabItem Header="display">
                         <StackPanel Margin="10 10 10 20">
-                            <ComboBox ItemsSource="{extensions:EnumDescription {x:Type controls:PresentationMode}}"
-                                      DisplayMemberPath="Description"
-                                      SelectedValuePath="Value"
-                                      SelectedValue="{Binding PresentationMode, Mode=TwoWay, ElementName=RotationCanvas}"
-                                      IsEnabled="{Binding IsReseted}"
-                                      Margin="0 5 0 5"/>
-
                             <CheckBox Content="display primes" IsChecked="{Binding DisplayPrimes, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                             <CheckBox Content="display lap line" IsChecked="{Binding DisplayLapLine, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                             <CheckBox Content="display circles" IsChecked="{Binding DisplayCircles, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
