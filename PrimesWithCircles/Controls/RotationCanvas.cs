@@ -13,65 +13,15 @@ namespace PrimesWithCircles.Controls
     public class RotationCanvas : Canvas, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-        void OnPropertyChanged([CallerMemberName] string? propName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+        public event Action? PrimesChanged;
+
+        void OnPropertyChanged([CallerMemberName] string? propName = null) => 
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
 
 
         #region PROPERTIES AND FIELDS
 
-        private readonly List<Circle> circles = [];
-        private LapLine lapLine;
-        private ScaleTransform ZoomTransform { get; set; }
-
-        //public Theme Theme { get;set; }
-
-        
-
-        public event Action? PrimesChanged;
-        private string primes = "";
-        public string Primes
-        {
-            get => primes;
-            set
-            {
-                if (primes != value)
-                {
-                    primes = value;
-                    OnPropertyChanged(nameof(Primes));
-                    PrimesChanged?.Invoke();
-                }
-            }
-        }
-
         public double StartAngle { get; set; } = -Math.PI / 2;  // start at top: -π/2
-
-        private int lapCounter = 0;
-        public int LapCounter
-        {
-            get => lapCounter;
-            set
-            {
-                if (lapCounter != value)
-                {
-                    lapCounter = value;
-                    OnPropertyChanged(nameof(LapCounter));
-                }
-            }
-        }
-
-        private bool autoRotation = true;
-        public bool AutoRotation
-        {
-            get => autoRotation;
-            set
-            {
-                if (autoRotation != value)
-                {
-                    autoRotation = value;
-                    OnPropertyChanged(nameof(AutoRotation));
-                }
-            }
-        }
-
         public Theme Theme { get; set; }
         public Brush PrimesColor => Theme.PrimesColor;
         public Brush CounterColor => Theme.CounterColor;
@@ -79,10 +29,15 @@ namespace PrimesWithCircles.Controls
 
         public double CurrentScale { get; set; } = 1.0;
 
+        private readonly List<Circle> circles = [];
+
+        private LapLine lapLine;
+        private ScaleTransform ZoomTransform { get; set; }
+
         #endregion
 
 
-        #region Dependency Properties
+        #region DEPENDENCY PROPERTIES
 
         public double RotationSpeed
         {
@@ -109,7 +64,7 @@ namespace PrimesWithCircles.Controls
             if (newSpeed < 0)
                 canvas.RotationSpeed = 0;
         }
-        public double RotationSpeedMin => 5;
+        public double RotationSpeedMin => 1;
         public double RotationSpeedMax => 50.0;
 
         public bool IsReseted
@@ -433,6 +388,56 @@ namespace PrimesWithCircles.Controls
             canvas.ApplyTheme();
         }
 
+
+        public string Primes
+        {
+            get => (string)GetValue(PrimesProperty);
+            set => SetValue(PrimesProperty, value);
+        }
+        public static readonly DependencyProperty PrimesProperty =
+            DependencyProperty.Register(
+                nameof(Primes),
+                typeof(string),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    "",
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnPrimesChanged
+                    ));
+        private static void OnPrimesChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            string value = (string)e.NewValue;
+
+            canvas.PrimesChanged?.Invoke();
+        }
+
+        
+        public int LapCounter
+        {
+            get => (int)GetValue(LapCounterProperty);
+            set => SetValue(LapCounterProperty, value);
+        }
+        public static readonly DependencyProperty LapCounterProperty =
+            DependencyProperty.Register(
+                nameof(LapCounter),
+                typeof(int),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(0));
+
+        public bool AutoRotation
+        {
+            get => (bool)GetValue(AutoRotationProperty);
+            set => SetValue(AutoRotationProperty, value);
+        }
+        public static readonly DependencyProperty AutoRotationProperty =
+            DependencyProperty.Register(
+                nameof(AutoRotation),
+                typeof(bool),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(true));
 
         #endregion
 

@@ -29,7 +29,7 @@ namespace PrimesWithCircles
         private static List<Theme> list =
         [
             new(
-                type: ThemeType.Dark,
+                type: ThemeType.DarkNeon,
                 backgroundColor: Brushes.Black,
                 circleColor: Brushes.LightGray,
                 pointerColor: Brushes.Yellow,
@@ -157,16 +157,6 @@ namespace PrimesWithCircles
                 lapLineColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2196F3")),
                 counterColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1B5E20")),
                 primesColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#212121"))
-                ),
-             new(
-                type: ThemeType.DarkNeon,
-                backgroundColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0B0E11")),
-                circleColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C7C7C7")),
-                pointerColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD600")),
-                trailColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF3D00")),
-                lapLineColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2979FF")),
-                counterColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF")),
-                primesColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"))
                 ),
              new(
                 type: ThemeType.DarkCyan,

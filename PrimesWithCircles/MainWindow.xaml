@@ -82,23 +82,6 @@
                                           IsEnabled="{Binding IsReseted, ElementName=RotationCanvas}"/>
                             </Grid>
                             
-                            <Grid Margin="0 5 0 5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="0" Text="theme" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <ComboBox
-                                    Grid.Column="1"
-                                    VerticalAlignment="Center"
-                                    ItemsSource="{extensions:EnumDescription {x:Type enums:ThemeType}}"
-                                    DisplayMemberPath="Description"
-                                    SelectedValuePath="Value"
-                                    SelectedValue="{Binding ThemeType, Mode=TwoWay, ElementName=RotationCanvas}" />          
-
-                            </Grid>
-
                             <TextBlock Text="base radious" Margin="0 5 0 5"/>
                             <Slider Minimum="{Binding BaseRadiousMin, ElementName=RotationCanvas}"
                                     Maximum="{Binding BaseRadiousMax, ElementName=RotationCanvas}"
@@ -137,6 +120,22 @@
                     
                     <TabItem Header="display">
                         <StackPanel Margin="10 10 10 20">
+                            <Grid Margin="0 5 0 5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="theme" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                <ComboBox
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    ItemsSource="{extensions:EnumDescription {x:Type enums:ThemeType}}"
+                                    DisplayMemberPath="Description"
+                                    SelectedValuePath="Value"
+                                    SelectedValue="{Binding ThemeType, Mode=TwoWay, ElementName=RotationCanvas}" />
+                            </Grid>
+                            
                             <CheckBox Content="display primes" IsChecked="{Binding DisplayPrimes, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                             <CheckBox Content="display lap line" IsChecked="{Binding DisplayLapLine, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                             <CheckBox Content="display circles" IsChecked="{Binding DisplayCircles, ElementName=RotationCanvas}" Margin="0 5 0 5"/>

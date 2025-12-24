@@ -4,14 +4,14 @@ namespace PrimesWithCircles.Enums
 {
     public enum ThemeType
     {
-        [Description("Dark")]
-        Dark,
-
-        [Description("Light")]
-        Light,
-
+        [Description("Dark Neon")]
+        DarkNeon,
+ 
         [Description("Classic Neon")]
         ClassicNeon,
+
+        [Description("Black + Orange")]
+        BlackOrange,
 
         [Description("Matrix / Radar Mode")]
         Matrix,
@@ -24,6 +24,12 @@ namespace PrimesWithCircles.Enums
 
         [Description("Minimal High-Contrast")]
         Minimal,
+
+        [Description("Dark + Cyan")]
+        DarkCyan,
+
+        [Description("Light")]
+        Light,
 
         [Description("Light Engineering")]
         LightEngineering,
@@ -43,17 +49,8 @@ namespace PrimesWithCircles.Enums
         [Description("Ultra Minimal")]
         UltraMinimal,
 
-        [Description("Dark Neon")]
-        DarkNeon,
-
-        [Description("Dark + Cyan")]
-        DarkCyan,
-
         [Description("Whiteboard Pro")]
         WhiteboardPro,
-
-        [Description("Black + Orange")]
-        BlackOrange
 
     }
 }
