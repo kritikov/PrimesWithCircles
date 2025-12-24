@@ -110,7 +110,7 @@ namespace PrimesWithCircles.Controls
         /// Get a contrasting color for the flash effect based on the canvas background color.
         /// </summary>
         /// <returns></returns>
-        Color GetFlashColor()
+        private Color GetFlashColor()
         {
             var bg = canvas.Theme.BackgroundColor.Color;
 

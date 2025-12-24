@@ -60,12 +60,17 @@ namespace PrimesWithCircles.Controls
         {
             var canvas = (RotationCanvas)d;
 
-            double newSpeed = (double)e.NewValue;
-            if (newSpeed < 0)
-                canvas.RotationSpeed = 0;
+            double value = (double)e.NewValue;
+            double clamped = Math.Clamp(value, RotationSpeedMin, RotationSpeedMax);
+
+            if (!value.Equals(clamped))
+            {
+                canvas.SetCurrentValue(RotationSpeedProperty, clamped);
+                return;
+            }
         }
-        public double RotationSpeedMin => 1;
-        public double RotationSpeedMax => 100.0;
+        public static double RotationSpeedMin => 1;
+        public static double RotationSpeedMax => 100.0;
 
         public bool IsReseted
         {
@@ -102,7 +107,7 @@ namespace PrimesWithCircles.Controls
             var canvas = (RotationCanvas)d;
             double value = (double)e.NewValue;
 
-            double clamped = Math.Clamp(value, canvas.BaseRadiousMin, canvas.BaseRadiousMax);
+            double clamped = Math.Clamp(value, BaseRadiousMin, BaseRadiousMax);
             if (!value.Equals(clamped))
             {
                 canvas.BaseRadious = clamped;
@@ -112,8 +117,8 @@ namespace PrimesWithCircles.Controls
             Circle.UpdateBaseRadious(value, canvas.circles);
             canvas.AdjustZoom();
         }
-        public double BaseRadiousMin => 20.0;
-        public double BaseRadiousMax => 200.0;
+        public static double BaseRadiousMin => 20.0;
+        public static double BaseRadiousMax => 200.0;
 
 
         public double PointerSize
@@ -138,7 +143,7 @@ namespace PrimesWithCircles.Controls
             var canvas = (RotationCanvas)d;
             double value = (double)e.NewValue;
 
-            double clamped = Math.Clamp(value, canvas.PointerSizeMin, canvas.PointerSizeMax);
+            double clamped = Math.Clamp(value, PointerSizeMin, PointerSizeMax);
             if (!value.Equals(clamped))
             {
                 canvas.PointerSize = clamped;
@@ -148,8 +153,8 @@ namespace PrimesWithCircles.Controls
             Circle.UpdatePointerSizes(value, canvas.circles);
 
         }
-        public double PointerSizeMin => 4.0;
-        public double PointerSizeMax => 40.0;
+        public static double PointerSizeMin => 4.0;
+        public static double PointerSizeMax => 40.0;
 
         public double CircleThickness
         {
@@ -173,7 +178,7 @@ namespace PrimesWithCircles.Controls
             var canvas = (RotationCanvas)d;
             double value = (double)e.NewValue;
 
-            double clamped = Math.Clamp(value, canvas.CircleThicknessMin, canvas.CircleThicknessMax);
+            double clamped = Math.Clamp(value, CircleThicknessMin, CircleThicknessMax);
             if (!value.Equals(clamped))
             {
                 canvas.CircleThickness = clamped;
@@ -181,8 +186,8 @@ namespace PrimesWithCircles.Controls
             }
             Circle.UpdateCirclesThicknesses(value, canvas.circles);
         }
-        public double CircleThicknessMin => 1.0;
-        public double CircleThicknessMax => 10.0;
+        public static double CircleThicknessMin => 1.0;
+        public static double CircleThicknessMax => 10.0;
 
         public double TrailThickness
         {
@@ -206,7 +211,7 @@ namespace PrimesWithCircles.Controls
             var canvas = (RotationCanvas)d;
             double value = (double)e.NewValue;
 
-            double clamped = Math.Clamp(value, canvas.TrailThicknessMin, canvas.TrailThicknessMax);
+            double clamped = Math.Clamp(value, TrailThicknessMin, TrailThicknessMax);
             if (!value.Equals(clamped))
             {
                 canvas.TrailThickness = clamped;
@@ -214,8 +219,8 @@ namespace PrimesWithCircles.Controls
             }
             Circle.UpdateTrailThicknesses(value, canvas.circles);
         }
-        public double TrailThicknessMin => 3.0;
-        public double TrailThicknessMax => 10.0;
+        public static double TrailThicknessMin => 3.0;
+        public static double TrailThicknessMax => 10.0;
 
         public double LapLineThickness
         {
@@ -239,7 +244,7 @@ namespace PrimesWithCircles.Controls
             var canvas = (RotationCanvas)d;
             double value = (double)e.NewValue;
 
-            double clamped = Math.Clamp(value, canvas.LapLineThicknessMin, canvas.LapLineThicknessMax);
+            double clamped = Math.Clamp(value, LapLineThicknessMin, LapLineThicknessMax);
             if (!value.Equals(clamped))
             {
                 canvas.LapLineThickness = clamped;
@@ -247,8 +252,8 @@ namespace PrimesWithCircles.Controls
             }
             canvas.lapLine.UpdateThickness(value);
         }
-        public double LapLineThicknessMin => 1.0;
-        public double LapLineThicknessMax => 10.0;
+        public static double LapLineThicknessMin => 1.0;
+        public static double LapLineThicknessMax => 10.0;
 
 
         public bool DisplayLapLine
@@ -572,8 +577,7 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void CenterAll()
         {
-            if (lapLine != null)
-                lapLine.Center();
+            lapLine.Center();
 
             foreach (var circle in circles)
             {

@@ -371,7 +371,5 @@ namespace PrimesWithCircles.Controls
 
             return false;
         }
-
-       
     }
 }
