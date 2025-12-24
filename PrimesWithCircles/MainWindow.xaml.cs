@@ -104,37 +104,15 @@ namespace PrimesWithCircles
         }
 
         /// <summary>
-        /// Rotate all circles for elapsedSec seconds. Stops and handles lap logic for first circle.
+        /// Rotate all circles for a rendering frame.
         /// </summary>
         private void RotateCircles()
         {
-            var (FirstCompleted, SomeOtherCompleted) = RotationCanvas.RotateCircles();
+            var lapCompleted = RotationCanvas.RotateCirclesFrame();
 
-
-            // if the first circle completed a lap
-            if (FirstCompleted)
-            {
-                if (RotationCanvas.AutoRotation != true)
-                    StopRotation();
-
-                // increase lap counter
-                RotationCanvas.LapCounter++;
-
-                // if no other circle completed a lap, then the lap counter is a prime
-                if (RotationCanvas.PresentationMode == PresentationMode.SeekPrimes)
-                {
-                    if (!SomeOtherCompleted)
-                        AddPrime(RotationCanvas.LapCounter);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Add a new prime to the list of primes
-        /// </summary>
-        private void AddPrime(int number) {
-
-            RotationCanvas.AddPrime(RotationCanvas.LapCounter);
+            // if auto-rotation is disabled and a lap is completed, stop the rotation
+            if (RotationCanvas.AutoRotation != true && lapCompleted)
+                StopRotation();
         }
 
         #endregion

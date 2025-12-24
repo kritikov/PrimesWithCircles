@@ -55,7 +55,7 @@
                             <TextBlock Text="rotation speed" Margin="0 5 0 5"/>
                             <Slider Minimum="{Binding RotationSpeedMin, ElementName=RotationCanvas}"
                                     Maximum="{Binding RotationSpeedMax, ElementName=RotationCanvas}"
-                                    TickFrequency="0.02"
+                                    TickFrequency="1"
                                     Value="{Binding RotationSpeed, ElementName=RotationCanvas}"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 5 0 5">
                                 <Button x:Name="RotateButton" Content="Rotate" Click="RotateButton_Click" Width="50"/>
@@ -138,6 +138,7 @@
                             
                             <CheckBox Content="display primes" IsChecked="{Binding DisplayPrimes, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                             <CheckBox Content="display lap line" IsChecked="{Binding DisplayLapLine, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
+                            <CheckBox Content="flash lap line on primes" IsChecked="{Binding FlashLapLine, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                             <CheckBox Content="display circles" IsChecked="{Binding DisplayCircles, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                             <CheckBox Content="display trails" IsChecked="{Binding DisplayTrails, ElementName=RotationCanvas}" Margin="0 5 0 5"/>
                         </StackPanel>

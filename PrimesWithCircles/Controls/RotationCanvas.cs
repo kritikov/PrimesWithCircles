@@ -65,7 +65,7 @@ namespace PrimesWithCircles.Controls
                 canvas.RotationSpeed = 0;
         }
         public double RotationSpeedMin => 1;
-        public double RotationSpeedMax => 50.0;
+        public double RotationSpeedMax => 100.0;
 
         public bool IsReseted
         {
@@ -228,7 +228,7 @@ namespace PrimesWithCircles.Controls
                 typeof(double),
                 typeof(RotationCanvas),
                 new FrameworkPropertyMetadata(
-                    1.5, // default value
+                    2.0, // default value
                     FrameworkPropertyMetadataOptions.AffectsRender,
                     OnLapLineThicknessChanged
                     ));
@@ -344,7 +344,6 @@ namespace PrimesWithCircles.Controls
             get => (PresentationMode)GetValue(PresentationModeProperty);
             set => SetValue(PresentationModeProperty, value);
         }
-
         public static readonly DependencyProperty PresentationModeProperty =
             DependencyProperty.Register(
                 nameof(PresentationMode),
@@ -439,6 +438,18 @@ namespace PrimesWithCircles.Controls
                 typeof(RotationCanvas),
                 new FrameworkPropertyMetadata(true));
 
+        public bool FlashLapLine
+        {
+            get => (bool)GetValue(FlashLapLineProperty);
+            set => SetValue(FlashLapLineProperty, value);
+        }
+        public static readonly DependencyProperty FlashLapLineProperty =
+            DependencyProperty.Register(
+                nameof(FlashLapLine),
+                typeof(bool),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(true));
+        
         #endregion
 
 
@@ -569,31 +580,7 @@ namespace PrimesWithCircles.Controls
                 circle.Center();
             }
         }
-
-        /// <summary>
-        /// Rotate all circles for elapsedSec seconds. Stops and handles lap logic for first circle.
-        /// </summary>
-        public (bool FirstCompleted, bool SomeOtherCompleted) RotateCircles()
-        {
-            bool firstCompleted = false;
-            bool someOtherCompleted = false;
-
-            // rotate all circles
-            foreach (var circle in circles)
-            {
-                bool lapCompleted = circle.RotateCircle(firstCompleted);
-                if (circle.Number == 1 && lapCompleted)
-                    firstCompleted = true;
-
-                if (circle.Number > 1 && firstCompleted && lapCompleted)
-                    someOtherCompleted = true;
-
-                circle.RedrawCircle();
-            }
-
-            return (firstCompleted, someOtherCompleted);
-        }
-
+ 
         /// <summary>
         /// Returns the largest radius value among all circles in the collection.
         /// </summary>
@@ -663,6 +650,61 @@ namespace PrimesWithCircles.Controls
                 Zoom(newScale);
             }
 
+        }
+
+        /// <summary>
+        /// Rotate all circles. Stops and handles lap logic for first circle.
+        /// </summary>
+        public (bool FirstCompleted, bool SomeOtherCompleted) RotateCircles()
+        {
+            bool firstCompleted = false;
+            bool someOtherCompleted = false;
+
+            // rotate all circles
+            foreach (var circle in circles)
+            {
+                bool lapCompleted = circle.RotateCircle(firstCompleted);
+                if (circle.Number == 1 && lapCompleted)
+                    firstCompleted = true;
+
+                if (circle.Number > 1 && firstCompleted && lapCompleted)
+                    someOtherCompleted = true;
+
+                circle.RedrawCircle();
+            }
+
+            return (firstCompleted, someOtherCompleted);
+        }
+
+        /// <summary>
+        /// Rotate all circles for a rendering frame.
+        /// </summary>
+        public bool RotateCirclesFrame()
+        {
+            var (firstCircleCompletedLap, someOtherCircleCompletedLap) = RotateCircles();
+
+            // if the first circle completed a lap
+            if (firstCircleCompletedLap)
+            {
+                // increase lap counter
+                LapCounter++;
+
+                // if no other circle completed a lap, then the lap counter is a prime
+                if (!someOtherCircleCompletedLap)
+                {
+                    if (PresentationMode == PresentationMode.SeekPrimes)
+                    {
+                        AddPrime(LapCounter);
+
+                        
+                    }
+
+                    if (FlashLapLine)
+                        lapLine.Flash();
+                }
+            }
+
+            return firstCircleCompletedLap;
         }
 
         #endregion

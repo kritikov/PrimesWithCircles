@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
 namespace PrimesWithCircles.Controls
@@ -9,7 +10,7 @@ namespace PrimesWithCircles.Controls
     {
         public Line line;
 
-        public double Thickness { get; set; } = 1.5;
+        public double Thickness { get; set; } = 2;
 
         private bool display = true;
         public bool Display 
@@ -41,8 +42,8 @@ namespace PrimesWithCircles.Controls
                 Y2 = 20,
                 Stroke = canvas.Theme.LapLineColor,
                 StrokeThickness = Thickness,
-                StrokeDashArray = [2, 2],
-                Visibility = canvas.DisplayLapLine ? Visibility.Visible : Visibility.Collapsed
+                //StrokeDashArray = [8, 2],
+                Visibility = canvas.DisplayLapLine ? Visibility.Visible : Visibility.Collapsed,
             };
         }
 
@@ -78,6 +79,47 @@ namespace PrimesWithCircles.Controls
         public void Rescale()
         {
             line.StrokeThickness = this.Thickness / canvas.CurrentScale;
+        }
+
+        /// <summary>
+        /// Flash the lap line
+        /// </summary>
+        public void Flash()
+        {
+            if (line.Stroke is not SolidColorBrush brush) return;
+
+            Color originalColor = brush.Color;
+            Color flashColor = GetFlashColor();
+
+            var colorAnim = new ColorAnimation
+            {
+                From = originalColor,
+                To = flashColor,
+                Duration = TimeSpan.FromMilliseconds(120),
+                AutoReverse = true,
+                EasingFunction = new QuadraticEase
+                {
+                    EasingMode = EasingMode.EaseOut
+                }
+            };
+
+            brush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnim);
+        }
+
+        /// <summary>
+        /// Get a contrasting color for the flash effect based on the canvas background color.
+        /// </summary>
+        /// <returns></returns>
+        Color GetFlashColor()
+        {
+            var bg = canvas.Theme.BackgroundColor.Color;
+
+            // luminance check
+            double luma = 0.2126 * bg.R + 0.7152 * bg.G + 0.0722 * bg.B;
+
+            return luma < 128
+                ? Colors.White
+                : Colors.Black;
         }
     }
 }

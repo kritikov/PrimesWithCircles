@@ -25,14 +25,8 @@ namespace PrimesWithCircles.Enums
         [Description("Minimal High-Contrast")]
         Minimal,
 
-        [Description("Dark + Cyan")]
-        DarkCyan,
-
         [Description("Light")]
         Light,
-
-        [Description("Light Engineering")]
-        LightEngineering,
 
         [Description("Soft Paper")]
         SoftPaper,
