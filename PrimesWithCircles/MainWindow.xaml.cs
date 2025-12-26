@@ -9,8 +9,6 @@ namespace PrimesWithCircles
 {
     public partial class MainWindow : Window
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
-
         private readonly RotationSettings settings;
         private readonly SettingsWindow settingsWindow;
         
@@ -33,25 +31,23 @@ namespace PrimesWithCircles
             RotationCanvas.Settings = settings;
 
             settingsWindow = new(settings);
+            settingsWindow.RotateRequested += RotateRequested;
+            settingsWindow.PauseRequested += PauseRequested;
+            settingsWindow.ResetRequested += ResetRequested;
         }
 
         #region EVENTS
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-
             ResetData();
-
             settingsWindow.Show();
-
         }
 
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-
             settingsWindow.Close();
-
         }
 
         private void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
@@ -67,10 +63,14 @@ namespace PrimesWithCircles
             if (isRotating)
                 RotateCircles();
         }
-        
-        private void RotateButton_Click(object sender, RoutedEventArgs e)
+
+        #endregion
+
+
+        #region METHODS
+
+        private void RotateRequested()
         {
-            // if not allready rotating, start rotating
             if (!isRotating)
             {
                 RotationCanvas.IsReseted = false;
@@ -78,23 +78,16 @@ namespace PrimesWithCircles
             }
         }
 
-        private void PauseBtn_Click(object sender, RoutedEventArgs e)
+        private void PauseRequested()
         {
             StopRotation();
         }
 
-        private void ResetBtn_Click(object sender, RoutedEventArgs e)
+        private void ResetRequested()
         {
             StopRotation();
             ResetData();
         }
-
-        #endregion
-
-
-        #region METHODS
-
-       
 
         /// <summary>
         /// Initializes the screen and sets up the initial circles and lap counter for the rotation canvas.

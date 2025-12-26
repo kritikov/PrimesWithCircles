@@ -8,7 +8,9 @@ namespace PrimesWithCircles
     public partial class SettingsWindow : Window
     {
 
-        private bool isRotating = false;
+        public event Action? RotateRequested;
+        public event Action? PauseRequested;
+        public event Action? ResetRequested;
 
         public SettingsWindow(RotationSettings rotationSettings)
         {
@@ -19,17 +21,17 @@ namespace PrimesWithCircles
 
         private void RotateButton_Click(object sender, RoutedEventArgs e)
         {
-            //((MainWindow)Owner).RotateButtonClicked();
+            RotateRequested?.Invoke();
         }
 
         private void PauseBtn_Click(object sender, RoutedEventArgs e)
         {
-            //((MainWindow)Owner).PauseButtonClicked();
+            PauseRequested?.Invoke();
         }
 
         private void ResetBtn_Click(object sender, RoutedEventArgs e)
         {
-            //((MainWindow)Owner).ResetButtonClicked();
+            ResetRequested?.Invoke();
         }
 
     }
