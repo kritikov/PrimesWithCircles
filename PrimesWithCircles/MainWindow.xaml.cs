@@ -1,39 +1,58 @@
 ﻿using PrimesWithCircles.Controls;
 using PrimesWithCircles.Enums;
 using System.ComponentModel;
+using System.Runtime;
 using System.Windows;
 using System.Windows.Media;
 
 namespace PrimesWithCircles
 {
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        private readonly RotationSettings settings;
+        private readonly SettingsWindow settingsWindow;
+        
         private bool isRotating = false;
 
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = this;
-
+            
             Loaded += OnLoaded;
             RotationCanvas.SizeChanged += OnCanvasSizeChanged;
             RotationCanvas.PrimesChanged += () =>
             {
                 PrimesScroll.ScrollToEnd();
             };
+
+            settings = new();
+
+            DataContext = settings;
+            RotationCanvas.Settings = settings;
+
+            settingsWindow = new(settings);
         }
 
         #region EVENTS
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+
             ResetData();
+
+            settingsWindow.Show();
+
         }
 
-        protected void OnPropertyChanged(string name)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+
+            settingsWindow.Close();
+
+        }
 
         private void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -74,6 +93,8 @@ namespace PrimesWithCircles
 
 
         #region METHODS
+
+       
 
         /// <summary>
         /// Initializes the screen and sets up the initial circles and lap counter for the rotation canvas.

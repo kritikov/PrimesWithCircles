@@ -1,0 +1,119 @@
+﻿<Window x:Class="PrimesWithCircles.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PrimesWithCircles"
+        xmlns:controls="clr-namespace:PrimesWithCircles.Controls"
+        xmlns:converters="clr-namespace:PrimesWithCircles.Converters"
+        xmlns:extensions="clr-namespace:PrimesWithCircles.Extensions"
+        xmlns:enums="clr-namespace:PrimesWithCircles.Enums"
+        mc:Ignorable="d"
+        Title="Settings" Height="172" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" >
+
+    <Window.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <extensions:EnumDescription x:Key="EnumDescription"/>
+    </Window.Resources>
+    
+    <StackPanel Background="#FFE2E2E2">
+        <TabControl>
+            <TabItem Header="play">
+                <StackPanel Margin="10 10 10 20">
+                    <CheckBox Content="auto rotation" IsChecked="{Binding AutoRotation}" Margin="0 5 0 5"/>
+                    <TextBlock Text="rotation speed" Margin="0 5 0 5"/>
+                    <Slider Minimum="{Binding RotationSpeedMin}"
+                        Maximum="{Binding RotationSpeedMax}"
+                        TickFrequency="1"
+                        Value="{Binding RotationSpeed}"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 5 0 5">
+                        <Button x:Name="RotateButton" Content="Rotate" Click="RotateButton_Click" Width="50"/>
+                        <Button x:Name="PauseBtn" Content="Pause" Click="PauseBtn_Click" Width="50"/>
+                        <Button Content="Reset" Click="ResetBtn_Click" Width="50"/>
+                    </StackPanel>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="start up">
+                <StackPanel Margin="10 10 10 20">
+                    <Grid Margin="0 5 0 5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="mode" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                        <ComboBox Grid.Column="1"
+                              VerticalAlignment="Center"
+                              ItemsSource="{extensions:EnumDescription {x:Type enums:PresentationMode}}"
+                              DisplayMemberPath="Description"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding PresentationMode}"
+                              IsEnabled="{Binding IsReseted}"/>
+                    </Grid>
+
+                    <TextBlock Text="base radious" Margin="0 5 0 5"/>
+                    <Slider Minimum="{Binding BaseRadiousMin}"
+                        Maximum="{Binding BaseRadiousMax}"
+                        Value="{Binding BaseRadious}"
+                        TickFrequency="5"
+                        IsEnabled="{Binding IsReseted}"/>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="settings">
+                <StackPanel Margin="10 10 10 20">
+                    <TextBlock Text="lap line thickness" Margin="0 5 0 5"/>
+                    <Slider Minimum="{Binding LapLineThicknessMin}"
+                            Maximum="{Binding LapLineThicknessMax}"
+                            TickFrequency="1" 
+                            Value="{Binding LapLineThickness}"/>
+
+                    <TextBlock Text="circle thickness" Margin="0 5 0 5"/>
+                    <Slider Minimum="{Binding CircleThicknessMin}"
+                            Maximum="{Binding CircleThicknessMax}"
+                            TickFrequency="1" 
+                            Value="{Binding CircleThickness}"/>
+
+                    <TextBlock Text="pointer size" Margin="0 5 0 5"/>
+                    <Slider Minimum="{Binding PointerSizeMin}"
+                            Maximum="{Binding PointerSizeMax}"
+                            TickFrequency="1" 
+                            Value="{Binding PointerSize}"/>
+
+                    <TextBlock Text="trail thickness" Margin="0 5 0 5"/>
+                    <Slider Minimum="{Binding TrailThicknessMin}"
+                            Maximum="{Binding TrailThicknessMax}"
+                            TickFrequency="1" 
+                            Value="{Binding TrailThickness}"/>
+                </StackPanel>
+            </TabItem>
+
+            <TabItem Header="display">
+                <StackPanel Margin="10 10 10 20">
+                    <Grid Margin="0 5 0 5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="theme" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                        <ComboBox
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        ItemsSource="{extensions:EnumDescription {x:Type enums:ThemeType}}"
+                        DisplayMemberPath="Description"
+                        SelectedValuePath="Value"
+                        SelectedValue="{Binding ThemeType}" />
+                    </Grid>
+
+                    <CheckBox Content="display primes" IsChecked="{Binding DisplayPrimes}" Margin="0 5 0 5"/>
+                    <CheckBox Content="display lap line" IsChecked="{Binding DisplayLapLine}" Margin="0 5 0 5"/>
+                    <CheckBox Content="flash lap line on primes" IsChecked="{Binding FlashLapLine}" Margin="0 5 0 5"/>
+                    <CheckBox Content="display circles" IsChecked="{Binding DisplayCircles}" Margin="0 5 0 5"/>
+                    <CheckBox Content="display trails" IsChecked="{Binding DisplayTrails}" Margin="0 5 0 5"/>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+
+    </StackPanel>
+</Window>

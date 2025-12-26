@@ -40,7 +40,7 @@ namespace PrimesWithCircles.Controls
                 Y1 = centerOfCanvas.Y,
                 X2 = centerOfCanvas.X,
                 Y2 = 20,
-                Stroke = canvas.Theme.LapLineColor,
+                Stroke = canvas.Settings.Theme.LapLineColor,
                 StrokeThickness = Thickness,
                 //StrokeDashArray = [8, 2],
                 Visibility = canvas.DisplayLapLine ? Visibility.Visible : Visibility.Collapsed,
@@ -52,7 +52,7 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void UpdateFromTheme()
         {
-            line.Stroke = canvas.Theme.LapLineColor;
+            line.Stroke = canvas.Settings.Theme.LapLineColor;
         }
 
         public void UpdateThickness(double thickness)
@@ -112,7 +112,7 @@ namespace PrimesWithCircles.Controls
         /// <returns></returns>
         private Color GetFlashColor()
         {
-            var bg = canvas.Theme.BackgroundColor.Color;
+            var bg = canvas.Settings.Theme.BackgroundColor.Color;
 
             // luminance check
             double luma = 0.2126 * bg.R + 0.7152 * bg.G + 0.0722 * bg.B;

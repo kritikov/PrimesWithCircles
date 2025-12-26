@@ -48,7 +48,7 @@ namespace PrimesWithCircles.Controls
             {
                 Width = Radious * 2,
                 Height = Radious * 2,
-                Stroke = canvas.Theme.CircleColor,
+                Stroke = canvas.Settings.Theme.CircleColor,
                 StrokeThickness = this.canvas.CircleThickness,
                 Visibility = Circle.CircleVisibility
             };
@@ -57,14 +57,14 @@ namespace PrimesWithCircles.Controls
             {
                 Width = Circle.PointerSize,
                 Height = Circle.PointerSize,
-                Fill = canvas.Theme.PointerColor,
+                Fill = canvas.Settings.Theme.PointerColor,
                 Stroke = Brushes.Black,
                 StrokeThickness = 1
             };
 
             Trail = new Polyline
             {
-                Stroke = canvas.Theme.TrailColor,
+                Stroke = canvas.Settings.Theme.TrailColor,
                 StrokeThickness = Circle.TrailThickness,
                 Opacity = 0.5,
                 Visibility = Circle.TrailVisibility
@@ -152,9 +152,9 @@ namespace PrimesWithCircles.Controls
         /// <param name="theme"></param>
         public void UpdateFromTheme()
         {
-            Shape.Stroke = canvas.Theme.CircleColor;
-            Pointer.Fill = canvas.Theme.PointerColor;
-            Trail.Stroke = canvas.Theme.TrailColor;
+            Shape.Stroke = canvas.Settings.Theme.CircleColor;
+            Pointer.Fill = canvas.Settings.Theme.PointerColor;
+            Trail.Stroke = canvas.Settings.Theme.TrailColor;
         }
 
         /// <summary>

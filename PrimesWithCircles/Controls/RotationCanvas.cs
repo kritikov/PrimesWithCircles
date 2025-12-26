@@ -1,8 +1,5 @@
 ﻿using PrimesWithCircles.Enums;
 using System.ComponentModel;
-using System.Drawing;
-using System.Runtime.CompilerServices;
-using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -10,28 +7,20 @@ using System.Windows.Media.Animation;
 
 namespace PrimesWithCircles.Controls
 {
-    public class RotationCanvas : Canvas, INotifyPropertyChanged
+    public class RotationCanvas : Canvas 
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
         public event Action? PrimesChanged;
-
-        void OnPropertyChanged([CallerMemberName] string? propName = null) => 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
 
 
         #region PROPERTIES AND FIELDS
 
         public double StartAngle { get; set; } = -Math.PI / 2;  // start at top: -π/2
-        public Theme Theme { get; set; }
-        public Brush PrimesColor => Theme.PrimesColor;
-        public Brush CounterColor => Theme.CounterColor;
-        public Brush BackgroundColor => Theme.BackgroundColor;
 
         public double CurrentScale { get; set; } = 1.0;
 
         private readonly List<Circle> circles = [];
 
-        private LapLine lapLine;
+        private LapLine? lapLine;
         private ScaleTransform ZoomTransform { get; set; }
 
         #endregion
@@ -39,38 +28,89 @@ namespace PrimesWithCircles.Controls
 
         #region DEPENDENCY PROPERTIES
 
-        public double RotationSpeed
+        public RotationSettings Settings
         {
-            get => (double)GetValue(RotationSpeedProperty);
-            set => SetValue(RotationSpeedProperty, value);
+            get => (RotationSettings)GetValue(SettingsProperty);
+            set => SetValue(SettingsProperty, value);
         }
-        public static readonly DependencyProperty RotationSpeedProperty =
+
+        public static readonly DependencyProperty SettingsProperty =
             DependencyProperty.Register(
-                nameof(RotationSpeed),
-                typeof(double),
+                nameof(Settings),
+                typeof(RotationSettings),
                 typeof(RotationCanvas),
-                new FrameworkPropertyMetadata(
-                    10.0, // default value
-                    FrameworkPropertyMetadataOptions.AffectsRender,
-                    OnRotationSpeedChanged
-                    ));
-        private static void OnRotationSpeedChanged(
+                new PropertyMetadata(null, OnSettingsChanged));
+
+        private static void OnSettingsChanged(
             DependencyObject d,
             DependencyPropertyChangedEventArgs e)
+                {
+                    var canvas = (RotationCanvas)d;
+
+                    if (e.OldValue is RotationSettings oldSettings)
+                        oldSettings.PropertyChanged -= canvas.OnSettingsPropertyChanged;
+
+                    if (e.NewValue is RotationSettings newSettings)
+                    {
+                        newSettings.PropertyChanged += canvas.OnSettingsPropertyChanged;
+                        canvas.RotationSpeed = newSettings.RotationSpeed;
+                    }
+                }
+
+        /// <summary>
+        /// When a property in the settings changes then update the corresponding property in the canvas
+        /// </summary>
+        private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            var canvas = (RotationCanvas)d;
+            if (sender is not RotationSettings s) return;
 
-            double value = (double)e.NewValue;
-            double clamped = Math.Clamp(value, RotationSpeedMin, RotationSpeedMax);
-
-            if (!value.Equals(clamped))
+            switch (e.PropertyName)
             {
-                canvas.SetCurrentValue(RotationSpeedProperty, clamped);
-                return;
+                case nameof(RotationSettings.RotationSpeed):
+                    RotationSpeed = s.RotationSpeed;
+                    break;
+                case nameof(RotationSettings.AutoRotation):
+                    AutoRotation = s.AutoRotation;
+                    break;
+                case nameof(RotationSettings.IsReseted):
+                    IsReseted = s.IsReseted;
+                    break;
+                case nameof(RotationSettings.PresentationMode):
+                    PresentationMode = s.PresentationMode;
+                    break;
+                case nameof(RotationSettings.BaseRadious):
+                    BaseRadious = s.BaseRadious;
+                    break;
+                case nameof(RotationSettings.LapLineThickness):
+                    LapLineThickness = s.LapLineThickness;
+                    break;
+                case nameof(RotationSettings.CircleThickness):
+                    CircleThickness = s.CircleThickness;
+                    break;
+                case nameof(RotationSettings.PointerSize):
+                    PointerSize = s.PointerSize;
+                    break;
+                case nameof(RotationSettings.TrailThickness):
+                    TrailThickness = s.TrailThickness;
+                    break;
+                case nameof(RotationSettings.ThemeType):
+                    ThemeType = s.ThemeType;
+                    break;
+                case nameof(RotationSettings.DisplayLapLine):
+                    DisplayLapLine = s.DisplayLapLine;
+                    break;
+                case nameof(RotationSettings.FlashLapLine):
+                    FlashLapLine = s.FlashLapLine;
+                    break;
+                case nameof(RotationSettings.DisplayCircles):
+                    DisplayCircles = s.DisplayCircles;
+                    break;
+                case nameof(RotationSettings.DisplayTrails):
+                    DisplayTrails = s.DisplayTrails;
+                    break;
             }
         }
-        public static double RotationSpeedMin => 1;
-        public static double RotationSpeedMax => 100.0;
+
 
         public bool IsReseted
         {
@@ -84,6 +124,59 @@ namespace PrimesWithCircles.Controls
                 typeof(RotationCanvas),
                 new PropertyMetadata(true));
 
+
+        public bool AutoRotation
+        {
+            get => (bool)GetValue(AutoRotationProperty);
+            set => SetValue(AutoRotationProperty, value);
+        }
+        public static readonly DependencyProperty AutoRotationProperty =
+            DependencyProperty.Register(
+                nameof(AutoRotation),
+                typeof(bool),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(true));
+
+
+        public double RotationSpeed
+        {
+            get => (double)GetValue(RotationSpeedProperty);
+            set => SetValue(RotationSpeedProperty, value);
+        }
+        public static readonly DependencyProperty RotationSpeedProperty =
+            DependencyProperty.Register(
+                nameof(RotationSpeed),
+                typeof(double),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    10.0, // default value
+                    FrameworkPropertyMetadataOptions.AffectsRender
+                    ));
+
+
+        public PresentationMode PresentationMode
+        {
+            get => (PresentationMode)GetValue(PresentationModeProperty);
+            set => SetValue(PresentationModeProperty, value);
+        }
+        public static readonly DependencyProperty PresentationModeProperty =
+            DependencyProperty.Register(
+                nameof(PresentationMode),
+                typeof(PresentationMode),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    PresentationMode.SeekPrimes,  
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    OnPresentationModeChanged
+                ));
+        private static void OnPresentationModeChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+
+            canvas.Reset();
+        }
 
         public double BaseRadious
         {
@@ -105,20 +198,58 @@ namespace PrimesWithCircles.Controls
             DependencyPropertyChangedEventArgs e)
         {
             var canvas = (RotationCanvas)d;
-            double value = (double)e.NewValue;
 
-            double clamped = Math.Clamp(value, BaseRadiousMin, BaseRadiousMax);
-            if (!value.Equals(clamped))
-            {
-                canvas.BaseRadious = clamped;
-                return;
-            }
-
-            Circle.UpdateBaseRadious(value, canvas.circles);
+            Circle.UpdateBaseRadious(canvas.BaseRadious, canvas.circles);
             canvas.AdjustZoom();
         }
-        public static double BaseRadiousMin => 20.0;
-        public static double BaseRadiousMax => 200.0;
+
+
+        public double LapLineThickness
+        {
+            get => (double)GetValue(LapLineThicknessProperty);
+            set => SetValue(LapLineThicknessProperty, value);
+        }
+        public static readonly DependencyProperty LapLineThicknessProperty =
+            DependencyProperty.Register(
+                nameof(LapLineThickness),
+                typeof(double),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    2.0, // default value
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnLapLineThicknessChanged
+                    ));
+        private static void OnLapLineThicknessChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            canvas.lapLine?.UpdateThickness(canvas.LapLineThickness);
+        }
+
+
+        public double CircleThickness
+        {
+            get => (double)GetValue(CircleThicknessProperty);
+            set => SetValue(CircleThicknessProperty, value);
+        }
+        public static readonly DependencyProperty CircleThicknessProperty =
+            DependencyProperty.Register(
+                nameof(CircleThickness),
+                typeof(double),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    Circle.CircleThickness, // default value
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnCircleThicknessChanged
+                    ));
+        private static void OnCircleThicknessChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            Circle.UpdateCirclesThicknesses(canvas.CircleThickness, canvas.circles);
+        }
 
 
         public double PointerSize
@@ -141,53 +272,9 @@ namespace PrimesWithCircles.Controls
             DependencyPropertyChangedEventArgs e)
         {
             var canvas = (RotationCanvas)d;
-            double value = (double)e.NewValue;
-
-            double clamped = Math.Clamp(value, PointerSizeMin, PointerSizeMax);
-            if (!value.Equals(clamped))
-            {
-                canvas.PointerSize = clamped;
-                return;
-            }
-
-            Circle.UpdatePointerSizes(value, canvas.circles);
-
+            Circle.UpdatePointerSizes(canvas.PointerSize, canvas.circles);
         }
-        public static double PointerSizeMin => 4.0;
-        public static double PointerSizeMax => 40.0;
-
-        public double CircleThickness
-        {
-            get => (double)GetValue(CircleThicknessProperty);
-            set => SetValue(CircleThicknessProperty, value);
-        }
-        public static readonly DependencyProperty CircleThicknessProperty =
-            DependencyProperty.Register(
-                nameof(CircleThickness),
-                typeof(double),
-                typeof(RotationCanvas),
-                new FrameworkPropertyMetadata(
-                    Circle.CircleThickness, // default value
-                    FrameworkPropertyMetadataOptions.AffectsRender,
-                    OnCircleThicknessChanged
-                    ));
-        private static void OnCircleThicknessChanged(
-            DependencyObject d,
-            DependencyPropertyChangedEventArgs e)
-        {
-            var canvas = (RotationCanvas)d;
-            double value = (double)e.NewValue;
-
-            double clamped = Math.Clamp(value, CircleThicknessMin, CircleThicknessMax);
-            if (!value.Equals(clamped))
-            {
-                canvas.CircleThickness = clamped;
-                return;
-            }
-            Circle.UpdateCirclesThicknesses(value, canvas.circles);
-        }
-        public static double CircleThicknessMin => 1.0;
-        public static double CircleThicknessMax => 10.0;
+        
 
         public double TrailThickness
         {
@@ -209,51 +296,42 @@ namespace PrimesWithCircles.Controls
             DependencyPropertyChangedEventArgs e)
         {
             var canvas = (RotationCanvas)d;
-            double value = (double)e.NewValue;
-
-            double clamped = Math.Clamp(value, TrailThicknessMin, TrailThicknessMax);
-            if (!value.Equals(clamped))
-            {
-                canvas.TrailThickness = clamped;
-                return;
-            }
-            Circle.UpdateTrailThicknesses(value, canvas.circles);
+            Circle.UpdateTrailThicknesses(canvas.TrailThickness, canvas.circles);
         }
-        public static double TrailThicknessMin => 3.0;
-        public static double TrailThicknessMax => 10.0;
 
-        public double LapLineThickness
+
+        public ThemeType ThemeType
         {
-            get => (double)GetValue(LapLineThicknessProperty);
-            set => SetValue(LapLineThicknessProperty, value);
+            get => (ThemeType)GetValue(ThemeTypeProperty);
+            set => SetValue(ThemeTypeProperty, value);
         }
-        public static readonly DependencyProperty LapLineThicknessProperty =
+        public static readonly DependencyProperty ThemeTypeProperty =
             DependencyProperty.Register(
-                nameof(LapLineThickness),
-                typeof(double),
+                nameof(ThemeType),
+                typeof(ThemeType),
                 typeof(RotationCanvas),
-                new FrameworkPropertyMetadata(
-                    2.0, // default value
-                    FrameworkPropertyMetadataOptions.AffectsRender,
-                    OnLapLineThicknessChanged
-                    ));
-        private static void OnLapLineThicknessChanged(
+                new PropertyMetadata(ThemeType.ClassicNeon, OnThemeTypeChanged)
+            );
+        private static void OnThemeTypeChanged(
             DependencyObject d,
             DependencyPropertyChangedEventArgs e)
         {
             var canvas = (RotationCanvas)d;
-            double value = (double)e.NewValue;
-
-            double clamped = Math.Clamp(value, LapLineThicknessMin, LapLineThicknessMax);
-            if (!value.Equals(clamped))
-            {
-                canvas.LapLineThickness = clamped;
-                return;
-            }
-            canvas.lapLine.UpdateThickness(value);
+            canvas.ApplyTheme();
         }
-        public static double LapLineThicknessMin => 1.0;
-        public static double LapLineThicknessMax => 10.0;
+
+
+        public bool DisplayPrimes
+        {
+            get => (bool)GetValue(DisplayPrimesProperty);
+            set => SetValue(DisplayPrimesProperty, value);
+        }
+        public static readonly DependencyProperty DisplayPrimesProperty =
+            DependencyProperty.Register(
+                nameof(DisplayPrimes),
+                typeof(bool),
+                typeof(RotationCanvas),
+                new PropertyMetadata(true));
 
 
         public bool DisplayLapLine
@@ -267,7 +345,7 @@ namespace PrimesWithCircles.Controls
                 typeof(bool),
                 typeof(RotationCanvas),
                 new FrameworkPropertyMetadata(
-                    true, // default value
+                    true, 
                     FrameworkPropertyMetadataOptions.AffectsRender,
                     OnDisplayLapLineChanged
                     ));
@@ -276,10 +354,25 @@ namespace PrimesWithCircles.Controls
             DependencyPropertyChangedEventArgs e)
         {
             var canvas = (RotationCanvas)d;
-            bool value = (bool)e.NewValue;
-
-            canvas.lapLine.Display = value;
+            if (canvas.lapLine != null)
+            {
+                canvas.lapLine.Display = canvas.DisplayLapLine;
+            }
         }
+
+
+        public bool FlashLapLine
+        {
+            get => (bool)GetValue(FlashLapLineProperty);
+            set => SetValue(FlashLapLineProperty, value);
+        }
+        public static readonly DependencyProperty FlashLapLineProperty =
+            DependencyProperty.Register(
+                nameof(FlashLapLine),
+                typeof(bool),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(true));
+
 
         public bool DisplayCircles
         {
@@ -301,10 +394,9 @@ namespace PrimesWithCircles.Controls
             DependencyPropertyChangedEventArgs e)
         {
             var canvas = (RotationCanvas)d;
-            bool value = (bool)e.NewValue;
-
-            Circle.UpdateCirclesVisibility(value, canvas.circles);
+            Circle.UpdateCirclesVisibility(canvas.DisplayCircles, canvas.circles);
         }
+
 
         public bool DisplayTrails
         {
@@ -326,71 +418,21 @@ namespace PrimesWithCircles.Controls
             DependencyPropertyChangedEventArgs e)
         {
             var canvas = (RotationCanvas)d;
-            bool value = (bool)e.NewValue;
-
-            Circle.UpdateTrailsVisibility(value, canvas.circles);
+            Circle.UpdateTrailsVisibility(canvas.DisplayTrails, canvas.circles);
         }
 
-        public bool DisplayPrimes
+
+        public int LapCounter
         {
-            get => (bool)GetValue(DisplayPrimesProperty);
-            set => SetValue(DisplayPrimesProperty, value);
+            get => (int)GetValue(LapCounterProperty);
+            set => SetValue(LapCounterProperty, value);
         }
-        public static readonly DependencyProperty DisplayPrimesProperty =
+        public static readonly DependencyProperty LapCounterProperty =
             DependencyProperty.Register(
-                nameof(DisplayPrimes),
-                typeof(bool),
+                nameof(LapCounter),
+                typeof(int),
                 typeof(RotationCanvas),
-               new PropertyMetadata(true));
-
-
-        public PresentationMode PresentationMode
-        {
-            get => (PresentationMode)GetValue(PresentationModeProperty);
-            set => SetValue(PresentationModeProperty, value);
-        }
-        public static readonly DependencyProperty PresentationModeProperty =
-            DependencyProperty.Register(
-                nameof(PresentationMode),
-                typeof(PresentationMode),
-                typeof(RotationCanvas),
-                new FrameworkPropertyMetadata(
-                    PresentationMode.SeekPrimes,   // default
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    OnPresentationModeChanged
-                ));
-        private static void OnPresentationModeChanged(
-            DependencyObject d,
-            DependencyPropertyChangedEventArgs e)
-        {
-            var canvas = (RotationCanvas)d;
-
-            if (Equals(e.OldValue, e.NewValue))
-                return;
-
-            canvas.Reset();
-        }
-
-        public ThemeType ThemeType
-        {
-            get => (ThemeType)GetValue(ThemeTypeProperty);
-            set => SetValue(ThemeTypeProperty, value);
-        }
-        public static readonly DependencyProperty ThemeTypeProperty =
-            DependencyProperty.Register(
-                nameof(ThemeType),
-                typeof(ThemeType),
-                typeof(RotationCanvas),
-                new PropertyMetadata(ThemeType.ClassicNeon, OnThemeTypeChanged)
-            );
-        private static void OnThemeTypeChanged(
-            DependencyObject d,
-            DependencyPropertyChangedEventArgs e)
-        {
-            var canvas = (RotationCanvas)d;
-            canvas.Theme = Themes.GetTheme((ThemeType)e.NewValue);
-            canvas.ApplyTheme();
-        }
+                new FrameworkPropertyMetadata(0));
 
 
         public string Primes
@@ -419,41 +461,11 @@ namespace PrimesWithCircles.Controls
         }
 
         
-        public int LapCounter
-        {
-            get => (int)GetValue(LapCounterProperty);
-            set => SetValue(LapCounterProperty, value);
-        }
-        public static readonly DependencyProperty LapCounterProperty =
-            DependencyProperty.Register(
-                nameof(LapCounter),
-                typeof(int),
-                typeof(RotationCanvas),
-                new FrameworkPropertyMetadata(0));
+        
 
-        public bool AutoRotation
-        {
-            get => (bool)GetValue(AutoRotationProperty);
-            set => SetValue(AutoRotationProperty, value);
-        }
-        public static readonly DependencyProperty AutoRotationProperty =
-            DependencyProperty.Register(
-                nameof(AutoRotation),
-                typeof(bool),
-                typeof(RotationCanvas),
-                new FrameworkPropertyMetadata(true));
+  
 
-        public bool FlashLapLine
-        {
-            get => (bool)GetValue(FlashLapLineProperty);
-            set => SetValue(FlashLapLineProperty, value);
-        }
-        public static readonly DependencyProperty FlashLapLineProperty =
-            DependencyProperty.Register(
-                nameof(FlashLapLine),
-                typeof(bool),
-                typeof(RotationCanvas),
-                new FrameworkPropertyMetadata(true));
+       
         
         #endregion
 
@@ -464,9 +476,6 @@ namespace PrimesWithCircles.Controls
         {
             ZoomTransform  = new ScaleTransform(CurrentScale, CurrentScale);
             LayoutTransform = ZoomTransform;
-
-            Theme = Themes.GetTheme(ThemeType.ClassicNeon);
-            lapLine = new LapLine(this);
         }
 
         #endregion
@@ -504,10 +513,6 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void ApplyTheme()
         {
-            OnPropertyChanged(nameof(PrimesColor));
-            OnPropertyChanged(nameof(CounterColor));
-            OnPropertyChanged(nameof(BackgroundColor));
-
             if (lapLine != null)
                 lapLine.UpdateFromTheme();
 
@@ -550,21 +555,21 @@ namespace PrimesWithCircles.Controls
             {
                 AddCircle(1);
                 LapCounter = 0;
-                DisplayPrimes = false;
+                Settings.DisplayPrimes = false;
             }
             else if (PresentationMode == PresentationMode.TwoCircles)
             {
                 AddCircle(1);
                 AddCircle(2);
                 LapCounter = 0;
-                DisplayPrimes = false;
+                Settings.DisplayPrimes = false;
             }
             else if (PresentationMode == PresentationMode.SeekPrimes)
             {
                 AddCircle(1);
                 AddCircle(2);
                 LapCounter = 2;
-                DisplayPrimes = true;
+                Settings.DisplayPrimes = true;
             }
 
             Primes = $"primes: {LapCounter}";
@@ -577,7 +582,7 @@ namespace PrimesWithCircles.Controls
         /// </summary>
         public void CenterAll()
         {
-            lapLine.Center();
+            lapLine?.Center();
 
             foreach (var circle in circles)
             {
@@ -704,7 +709,7 @@ namespace PrimesWithCircles.Controls
                     }
 
                     if (FlashLapLine)
-                        lapLine.Flash();
+                        lapLine?.Flash();
                 }
             }
 
