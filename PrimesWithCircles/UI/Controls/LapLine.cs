@@ -4,7 +4,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
-namespace PrimesWithCircles.Controls
+namespace PrimesWithCircles.UI.Controls
 {
     public class LapLine
     {

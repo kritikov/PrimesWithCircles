@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Windows.Data;
 
-namespace PrimesWithCircles.Converters
+namespace PrimesWithCircles.Infrastucture.Converters
 {
     public class EnumValuesConverter : IValueConverter
     {

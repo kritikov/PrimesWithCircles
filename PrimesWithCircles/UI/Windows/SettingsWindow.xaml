@@ -1,15 +1,15 @@
-﻿<Window x:Class="PrimesWithCircles.SettingsWindow"
+﻿<Window x:Class="PrimesWithCircles.UI.Windows.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PrimesWithCircles"
-        xmlns:controls="clr-namespace:PrimesWithCircles.Controls"
-        xmlns:converters="clr-namespace:PrimesWithCircles.Converters"
-        xmlns:extensions="clr-namespace:PrimesWithCircles.Extensions"
-        xmlns:enums="clr-namespace:PrimesWithCircles.Enums"
+        xmlns:controls="clr-namespace:PrimesWithCircles.UI.Controls"
+        xmlns:converters="clr-namespace:PrimesWithCircles.Infrastucture.Converters"
+        xmlns:extensions="clr-namespace:PrimesWithCircles.Infrastucture.Extensions"
+        xmlns:enums="clr-namespace:PrimesWithCircles.Infrastucture.Enums"
         mc:Ignorable="d"
-        Title="Settings" Height="232" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" >
+        Title="Settings" Height="258" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" >
 
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -17,7 +17,7 @@
     </Window.Resources>
     
     <Grid Background="#FFE2E2E2">
-        <TabControl VerticalAlignment="Stretch">
+        <TabControl Margin="0,0,0,0" VerticalAlignment="Stretch">
             <TabItem Header="play">
                 <StackPanel Margin="10 10 10 20">
                     <CheckBox Content="auto rotation" IsChecked="{Binding AutoRotation}" Margin="0 5 0 5"/>

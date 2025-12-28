@@ -3,14 +3,14 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace PrimesWithCircles.Controls
+namespace PrimesWithCircles.UI.Controls
 {
     public class Circle
     {
         public static double BaseRadious { get; set; }  = 80.0;
-        public static double CircleThickness { get; set; } = 1.5;
-        public static double PointerSize { get; set; } = 10.0;
-        public static double TrailThickness { get; set; } = 2;
+        public static double CircleThickness { get; set; } = 2;
+        public static double PointerSize { get; set; } = 12;
+        public static double TrailThickness { get; set; } = 7;
         public static bool DisplayCircles { get; set; } = true;
         public static Visibility CircleVisibility
         {

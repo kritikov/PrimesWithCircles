@@ -1,7 +1,7 @@
-﻿using PrimesWithCircles.Enums;
+﻿using PrimesWithCircles.Infrastucture.Enums;
 using System.Windows.Media;
 
-namespace PrimesWithCircles
+namespace PrimesWithCircles.Infrastucture
 {
     public class Theme(
         ThemeType type,

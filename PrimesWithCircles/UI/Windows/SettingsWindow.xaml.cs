@@ -1,6 +1,7 @@
-﻿using System.Windows;
+﻿using PrimesWithCircles.Infrastucture;
+using System.Windows;
 
-namespace PrimesWithCircles
+namespace PrimesWithCircles.UI.Windows
 {
     /// <summary>
     /// Interaction logic for Settings.xaml

@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Data;
 
-namespace PrimesWithCircles.Converters
+namespace PrimesWithCircles.Infrastucture.Converters
 {
     public class BoolToVisibilityConverter : IValueConverter
     {

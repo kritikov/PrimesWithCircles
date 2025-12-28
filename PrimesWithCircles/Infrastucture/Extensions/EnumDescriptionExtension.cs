@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Markup;
 
-namespace PrimesWithCircles.Extensions
+namespace PrimesWithCircles.Infrastucture.Extensions
 {
     [MarkupExtensionReturnType(typeof(IEnumerable))]
     public class EnumDescription : MarkupExtension

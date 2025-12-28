@@ -1,11 +1,12 @@
-﻿using PrimesWithCircles.Enums;
+﻿using PrimesWithCircles.Infrastucture;
+using PrimesWithCircles.Infrastucture.Enums;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
-namespace PrimesWithCircles.Controls
+namespace PrimesWithCircles.UI.Controls
 {
     public class RotationCanvas : Canvas 
     {
@@ -22,6 +23,7 @@ namespace PrimesWithCircles.Controls
 
         private LapLine? lapLine;
         private ScaleTransform ZoomTransform { get; set; }
+        private bool isRotating = false;
 
         #endregion
 
@@ -470,6 +472,32 @@ namespace PrimesWithCircles.Controls
         {
             ZoomTransform  = new ScaleTransform(CurrentScale, CurrentScale);
             LayoutTransform = ZoomTransform;
+
+            SizeChanged += OnCanvasSizeChanged;
+        }
+
+        #endregion
+
+
+        #region EVENTS
+
+        private void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            // COMMENT: AdjustZoom method already called in RotationCanvas when size changes. Potentional problem with double calls?
+
+            CenterAll();
+            AdjustZoom();
+        }
+
+        private void OnRendering(object? sender, EventArgs e)
+        {
+            if (isRotating)
+            {
+                var lapCompleted = AdvanceFrame();
+
+                if (!AutoRotation && lapCompleted)
+                    StopRotating();
+            }
         }
 
         #endregion
@@ -530,11 +558,6 @@ namespace PrimesWithCircles.Controls
             Primes += number.ToString();
         }
 
-        public void SetReset(bool value)
-        {
-            IsReseted = value;
-        }   
-
         /// <summary>
         /// Clear all circles and reset to initial state with circles 1 and 2
         /// </summary>
@@ -542,7 +565,7 @@ namespace PrimesWithCircles.Controls
         {
             circles.Clear();
             Children.Clear();
-            SetReset(true);
+            IsReseted = true;
             CurrentScale = 1.0;
             ZoomTransform.ScaleX = CurrentScale;
             ZoomTransform.ScaleY = CurrentScale;
@@ -661,27 +684,24 @@ namespace PrimesWithCircles.Controls
         }
 
         /// <summary>
-        /// Rotate all circles. Stops and handles lap logic for first circle.
+        /// Start rotating all circles
         /// </summary>
-        public (bool FirstCompleted, bool SomeOtherCompleted) RotateCircles()
+        public void StartRotating()
         {
-            bool firstCompleted = false;
-            bool someOtherCompleted = false;
+            if (isRotating) return;
+            Settings.IsReseted = false;
+            CompositionTarget.Rendering += OnRendering;
+            isRotating = true;
+        }
 
-            // rotate all circles
-            foreach (var circle in circles)
-            {
-                bool lapCompleted = circle.RotateCircle(firstCompleted);
-                if (circle.Number == 1 && lapCompleted)
-                    firstCompleted = true;
-
-                if (circle.Number > 1 && firstCompleted && lapCompleted)
-                    someOtherCompleted = true;
-
-                circle.RedrawCircle();
-            }
-
-            return (firstCompleted, someOtherCompleted);
+        /// <summary>
+        /// Stop rotating all circles
+        /// </summary>
+        public void StopRotating()
+        {
+            if (!isRotating) return;
+            CompositionTarget.Rendering -= OnRendering;
+            isRotating = false;
         }
 
         /// <summary>
@@ -703,8 +723,6 @@ namespace PrimesWithCircles.Controls
                     if (PresentationMode == PresentationMode.SeekPrimes)
                     {
                         AddPrime(LapCounter);
-
-                        
                     }
 
                     if (FlashLapLine)
@@ -713,6 +731,30 @@ namespace PrimesWithCircles.Controls
             }
 
             return firstCircleCompletedLap;
+        }
+
+        /// <summary>
+        /// Rotate all circles. Stops and handles lap logic for first circle.
+        /// </summary>
+        public (bool FirstCompleted, bool SomeOtherCompleted) RotateCircles()
+        {
+            bool firstCompleted = false;
+            bool someOtherCompleted = false;
+
+            // rotate all circles
+            foreach (var circle in circles)
+            {
+                bool lapCompleted = circle.RotateCircle(firstCompleted);
+                if (circle.Number == 1 && lapCompleted)
+                    firstCompleted = true;
+
+                if (circle.Number > 1 && firstCompleted && lapCompleted)
+                    someOtherCompleted = true;
+
+                circle.RedrawCircle();
+            }
+
+            return (firstCompleted, someOtherCompleted);
         }
 
         #endregion

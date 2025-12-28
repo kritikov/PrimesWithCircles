@@ -1,9 +1,9 @@
-﻿using PrimesWithCircles.Controls;
-using PrimesWithCircles.Enums;
+﻿using PrimesWithCircles.Infrastucture.Enums;
+using PrimesWithCircles.UI.Controls;
 using System.ComponentModel;
 using System.Windows.Media;
 
-namespace PrimesWithCircles
+namespace PrimesWithCircles.Infrastucture
 {
     public class RotationSettings : INotifyPropertyChanged
     {
@@ -115,7 +115,7 @@ namespace PrimesWithCircles
             }
         }
 
-        private double baseRadious = 10;
+        private double baseRadious = Circle.BaseRadious;
         public double BaseRadious
         {
             get => baseRadious;
