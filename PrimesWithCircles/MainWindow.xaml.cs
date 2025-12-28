@@ -73,7 +73,7 @@ namespace PrimesWithCircles
         {
             if (!isRotating)
             {
-                RotationCanvas.IsReseted = false;
+                RotationCanvas.SetReset(false);
                 StartRotation();
             }
         }
@@ -122,7 +122,7 @@ namespace PrimesWithCircles
         /// </summary>
         private void RotateCircles()
         {
-            var lapCompleted = RotationCanvas.RotateCirclesFrame();
+            var lapCompleted = RotationCanvas.AdvanceFrame();
 
             // if auto-rotation is disabled and a lap is completed, stop the rotation
             if (RotationCanvas.AutoRotation != true && lapCompleted)

@@ -9,15 +9,15 @@
         xmlns:extensions="clr-namespace:PrimesWithCircles.Extensions"
         xmlns:enums="clr-namespace:PrimesWithCircles.Enums"
         mc:Ignorable="d"
-        Title="Settings" Height="172" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" >
+        Title="Settings" Height="232" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" >
 
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <extensions:EnumDescription x:Key="EnumDescription"/>
     </Window.Resources>
     
-    <StackPanel Background="#FFE2E2E2">
-        <TabControl>
+    <Grid Background="#FFE2E2E2">
+        <TabControl VerticalAlignment="Stretch">
             <TabItem Header="play">
                 <StackPanel Margin="10 10 10 20">
                     <CheckBox Content="auto rotation" IsChecked="{Binding AutoRotation}" Margin="0 5 0 5"/>
@@ -60,7 +60,7 @@
                 </StackPanel>
             </TabItem>
             <TabItem Header="settings">
-                <StackPanel Margin="10 10 10 20">
+                <StackPanel Margin="10,0,10,0">
                     <TextBlock Text="lap line thickness" Margin="0 5 0 5"/>
                     <Slider Minimum="{Binding LapLineThicknessMin}"
                             Maximum="{Binding LapLineThicknessMax}"
@@ -115,5 +115,5 @@
         </TabControl>
 
 
-    </StackPanel>
+    </Grid>
 </Window>

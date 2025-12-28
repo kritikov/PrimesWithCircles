@@ -461,12 +461,6 @@ namespace PrimesWithCircles.Controls
         }
 
         
-        
-
-  
-
-       
-        
         #endregion
 
 
@@ -536,6 +530,11 @@ namespace PrimesWithCircles.Controls
             Primes += number.ToString();
         }
 
+        public void SetReset(bool value)
+        {
+            IsReseted = value;
+        }   
+
         /// <summary>
         /// Clear all circles and reset to initial state with circles 1 and 2
         /// </summary>
@@ -543,7 +542,7 @@ namespace PrimesWithCircles.Controls
         {
             circles.Clear();
             Children.Clear();
-            IsReseted = true;
+            SetReset(true);
             CurrentScale = 1.0;
             ZoomTransform.ScaleX = CurrentScale;
             ZoomTransform.ScaleY = CurrentScale;
@@ -688,7 +687,7 @@ namespace PrimesWithCircles.Controls
         /// <summary>
         /// Rotate all circles for a rendering frame.
         /// </summary>
-        public bool RotateCirclesFrame()
+        public bool AdvanceFrame()
         {
             var (firstCircleCompletedLap, someOtherCircleCompletedLap) = RotateCircles();
 
