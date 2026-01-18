@@ -9,7 +9,7 @@
         xmlns:extensions="clr-namespace:PrimesWithCircles.Infrastucture.Extensions"
         xmlns:enums="clr-namespace:PrimesWithCircles.Infrastucture.Enums"
         mc:Ignorable="d"
-        Title="Settings" Height="258" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" >
+        Title="Settings" Height="200" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
 
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -17,7 +17,7 @@
     </Window.Resources>
     
     <Grid Background="#FFE2E2E2">
-        <TabControl Margin="0,0,0,0" VerticalAlignment="Stretch">
+        <TabControl Margin="0,0,0,-23">
             <TabItem Header="play">
                 <StackPanel Margin="10 10 10 20">
                     <CheckBox Content="auto rotation" IsChecked="{Binding AutoRotation}" Margin="0 5 0 5"/>
@@ -60,35 +60,54 @@
                 </StackPanel>
             </TabItem>
             <TabItem Header="settings">
-                <StackPanel Margin="10,0,10,0">
-                    <TextBlock Text="lap line thickness" Margin="0 5 0 5"/>
-                    <Slider Minimum="{Binding LapLineThicknessMin}"
-                            Maximum="{Binding LapLineThicknessMax}"
-                            TickFrequency="1" 
-                            Value="{Binding LapLineThickness}"/>
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
 
-                    <TextBlock Text="circle thickness" Margin="0 5 0 5"/>
-                    <Slider Minimum="{Binding CircleThicknessMin}"
-                            Maximum="{Binding CircleThicknessMax}"
-                            TickFrequency="1" 
-                            Value="{Binding CircleThickness}"/>
 
-                    <TextBlock Text="pointer size" Margin="0 5 0 5"/>
-                    <Slider Minimum="{Binding PointerSizeMin}"
-                            Maximum="{Binding PointerSizeMax}"
-                            TickFrequency="1" 
-                            Value="{Binding PointerSize}"/>
-
-                    <TextBlock Text="trail thickness" Margin="0 5 0 5"/>
-                    <Slider Minimum="{Binding TrailThicknessMin}"
-                            Maximum="{Binding TrailThicknessMax}"
-                            TickFrequency="1" 
-                            Value="{Binding TrailThickness}"/>
-                </StackPanel>
+                    <StackPanel Grid.Column="0" Grid.Row="0" Margin="0 5 0 5">
+                        <TextBlock Text="lap line thickness" />
+                        <Slider Minimum="{Binding LapLineThicknessMin}"
+                                Maximum="{Binding LapLineThicknessMax}"
+                                TickFrequency="1" 
+                                Value="{Binding LapLineThickness}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="0" Grid.Row="1" Margin="0 5 0 5">
+                        <TextBlock Text="circle thickness"/>
+                        <Slider Minimum="{Binding CircleThicknessMin}"
+                                Maximum="{Binding CircleThicknessMax}"
+                                TickFrequency="1" 
+                                Value="{Binding CircleThickness}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Grid.Row="0" Margin="0 5 0 5">
+                        <TextBlock Text="pointer size" />
+                        <Slider Minimum="{Binding PointerSizeMin}"
+                                Maximum="{Binding PointerSizeMax}"
+                                TickFrequency="1" 
+                                Value="{Binding PointerSize}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Grid.Row="1" Margin="0 5 0 5">
+                        <TextBlock Text="trail thickness" />
+                        <Slider Minimum="{Binding TrailThicknessMin}"
+                                Maximum="{Binding TrailThicknessMax}"
+                                TickFrequency="1" 
+                                Value="{Binding TrailThickness}"/>
+                    </StackPanel>
+                </Grid>
+                
+                
+                
             </TabItem>
 
             <TabItem Header="display">
-                <StackPanel Margin="10 10 10 20">
+                <StackPanel Margin="10,10,8,20">
                     <Grid Margin="0 5 0 5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -105,11 +124,24 @@
                         SelectedValue="{Binding ThemeType}" />
                     </Grid>
 
-                    <CheckBox Content="display primes" IsChecked="{Binding DisplayPrimes}" Margin="0 5 0 5"/>
-                    <CheckBox Content="display lap line" IsChecked="{Binding DisplayLapLine}" Margin="0 5 0 5"/>
-                    <CheckBox Content="flash lap line on primes" IsChecked="{Binding FlashLapLine}" Margin="0 5 0 5"/>
-                    <CheckBox Content="display circles" IsChecked="{Binding DisplayCircles}" Margin="0 5 0 5"/>
-                    <CheckBox Content="display trails" IsChecked="{Binding DisplayTrails}" Margin="0 5 0 5"/>
+                    <Grid Margin="0 5 0 5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <CheckBox Grid.Column="0" Grid.Row="0" Content="lap counter" IsChecked="{Binding DisplayLapCounter}" Margin="0 5 0 5"/>
+                        <CheckBox Grid.Column="0" Grid.Row="1" Content="primes" IsChecked="{Binding DisplayPrimes}" Margin="0 5 0 5"/>
+                        <CheckBox Grid.Column="0" Grid.Row="2" Content="lap line" IsChecked="{Binding DisplayLapLine}" Margin="0 5 0 5"/>
+                        <CheckBox Grid.Column="1" Grid.Row="0" Content="flash lap line" IsChecked="{Binding FlashLapLine}" Margin="0 5 0 5"/>
+                        <CheckBox Grid.Column="1" Grid.Row="1" Content="circles" IsChecked="{Binding DisplayCircles}" Margin="0 5 0 5"/>
+                        <CheckBox Grid.Column="1" Grid.Row="2" Content="trails" IsChecked="{Binding DisplayTrails}" Margin="0 5 0 5"/>
+                    </Grid>
                 </StackPanel>
             </TabItem>
         </TabControl>

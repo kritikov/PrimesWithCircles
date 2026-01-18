@@ -565,7 +565,7 @@ namespace PrimesWithCircles.UI.Controls
         {
             circles.Clear();
             Children.Clear();
-            IsReseted = true;
+            Settings.IsReseted = true;
             CurrentScale = 1.0;
             ZoomTransform.ScaleX = CurrentScale;
             ZoomTransform.ScaleY = CurrentScale;

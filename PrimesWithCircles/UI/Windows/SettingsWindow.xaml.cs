@@ -35,5 +35,15 @@ namespace PrimesWithCircles.UI.Windows
             ResetRequested?.Invoke();
         }
 
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            Application.Current.Shutdown();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+
+        }
     }
 }

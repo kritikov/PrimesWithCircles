@@ -9,8 +9,6 @@ namespace PrimesWithCircles.UI.Windows
         private readonly RotationSettings settings;
         private readonly SettingsWindow settingsWindow;
         
-        private bool isRotating = false;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -37,12 +35,13 @@ namespace PrimesWithCircles.UI.Windows
         {
             RotationCanvas.Reset();
             settingsWindow.Show();
+            settingsWindow.Owner = this;
         }
 
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            settingsWindow.Close();
+            Application.Current.Shutdown();
         }
 
 

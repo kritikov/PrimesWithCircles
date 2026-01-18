@@ -191,6 +191,20 @@ namespace PrimesWithCircles.Infrastucture
         }
 
        
+        private bool displayLapCounter = true;
+        public bool DisplayLapCounter
+        {
+            get => displayLapCounter;
+            set
+            {
+                if (displayLapCounter != value)
+                {
+                    displayLapCounter = value;
+                    PropertyChanged?.Invoke(this, new(nameof(DisplayLapCounter)));
+                }
+            }
+        }
+
         private bool displayPrimes = true;
         public bool DisplayPrimes
         {

@@ -30,12 +30,13 @@
 
             <Grid Grid.Row="0" Background="{Binding BackgroundColor}">
                 <TextBlock FontSize="40"
-                   FontWeight="Bold"
-                   Text="{Binding LapCounter, ElementName=RotationCanvas}"
-                   TextAlignment="Center"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   Foreground="{Binding CounterColor}"/>
+                           FontWeight="Bold"
+                           Text="{Binding LapCounter, ElementName=RotationCanvas}"
+                           Visibility="{Binding DisplayLapCounter, Converter={StaticResource BoolToVisibilityConverter}}"
+                           TextAlignment="Center"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="{Binding CounterColor}"/>
             </Grid>
 
             <Grid Grid.Row="1" Background="{Binding BackgroundColor}">
