@@ -9,8 +9,14 @@ namespace PrimesWithCircles.UI.Controls
     {
         public static double BaseRadious { get; set; }  = 80.0;
         public static double CircleThickness { get; set; } = 2;
-        public static double PointerSize { get; set; } = 12;
+        public static double PointerSize { get; set; } = 15;
         public static double TrailThickness { get; set; } = 7;
+        public static bool DisplayPointers { get; set; } = true;
+        public static Visibility PointerVisibility
+        {
+            get => Circle.DisplayPointers == true ? Visibility.Visible : Visibility.Hidden;
+
+        }
         public static bool DisplayCircles { get; set; } = true;
         public static Visibility CircleVisibility
         {
@@ -39,7 +45,7 @@ namespace PrimesWithCircles.UI.Controls
         public Circle(RotationCanvas canvas, int number)
         {
             this.canvas = canvas;
-            Radious = Circle.BaseRadious * number;
+            Radious = BaseRadious * number;
             Number = number;
             center = new Point(canvas.ActualWidth / 2, canvas.ActualHeight / 2);
             angle = canvas.StartAngle;
@@ -50,24 +56,25 @@ namespace PrimesWithCircles.UI.Controls
                 Height = Radious * 2,
                 Stroke = canvas.Settings.Theme.CircleColor,
                 StrokeThickness = this.canvas.CircleThickness,
-                Visibility = Circle.CircleVisibility
+                Visibility = CircleVisibility
             };
 
             Pointer = new Ellipse
             {
-                Width = Circle.PointerSize,
-                Height = Circle.PointerSize,
+                Width = PointerSize,
+                Height = PointerSize,
                 Fill = canvas.Settings.Theme.PointerColor,
                 Stroke = Brushes.Black,
-                StrokeThickness = 1
+                StrokeThickness = 1,
+                Visibility = PointerVisibility
             };
 
             Trail = new Polyline
             {
                 Stroke = canvas.Settings.Theme.TrailColor,
-                StrokeThickness = Circle.TrailThickness,
+                StrokeThickness = TrailThickness,
                 Opacity = 0.5,
-                Visibility = Circle.TrailVisibility
+                Visibility = TrailVisibility
             };
             
         }
@@ -93,6 +100,19 @@ namespace PrimesWithCircles.UI.Controls
             foreach (var circle in circles)
             {
                 circle.UpdatePointerSize();
+            }
+        }
+
+        /// <summary>
+        /// Set visibility for for a list of pointers
+        /// </summary>
+        public static void UpdatePointersVisibility(bool areVisible, List<Circle> circles)
+        {
+            Circle.DisplayPointers = areVisible;
+
+            foreach (var circle in circles)
+            {
+                circle.UpdatePointerVisibility();
             }
         }
 
@@ -187,6 +207,14 @@ namespace PrimesWithCircles.UI.Controls
             Pointer.Height = Circle.PointerSize;
             RescalePointer();
             PositionPointer();
+        }
+
+        /// <summary>
+        /// Set the visibility of the pointer shape according to the common setting.
+        /// </summary>
+        public void UpdatePointerVisibility()
+        {
+            Pointer.Visibility = Circle.PointerVisibility;
         }
 
         /// <summary>

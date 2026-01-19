@@ -26,7 +26,7 @@ namespace PrimesWithCircles.Infrastucture
         public Brush CounterColor => Theme.CounterColor;
         public Brush BackgroundColor => Theme.BackgroundColor;
 
-        private Theme theme = Themes.GetTheme(ThemeType.ClassicNeon);
+        private Theme theme = Themes.GetTheme(ThemeType.DarkNeon);
         public Theme Theme {
             get => theme;
             set
@@ -42,7 +42,7 @@ namespace PrimesWithCircles.Infrastucture
             }
         }
 
-        private ThemeType themeType = ThemeType.ClassicNeon;
+        private ThemeType themeType = ThemeType.DarkNeon;
         public ThemeType ThemeType
         {
             get => themeType;
@@ -58,7 +58,7 @@ namespace PrimesWithCircles.Infrastucture
         }
 
 
-        private double rotationSpeed = 10;
+        private double rotationSpeed = 6;
         public double RotationSpeed
         {
             get => rotationSpeed;
@@ -243,6 +243,20 @@ namespace PrimesWithCircles.Infrastucture
                 {
                     flashLapLine = value;
                     PropertyChanged?.Invoke(this, new(nameof(FlashLapLine)));
+                }
+            }
+        }
+
+        private bool displayPointers = true;
+        public bool DisplayPointers
+        {
+            get => displayPointers;
+            set
+            {
+                if (displayPointers != value)
+                {
+                    displayPointers = value;
+                    PropertyChanged?.Invoke(this, new(nameof(DisplayPointers)));
                 }
             }
         }

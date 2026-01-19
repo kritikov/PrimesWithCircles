@@ -15,13 +15,13 @@ namespace PrimesWithCircles.Infrastucture
         )
     {
         public ThemeType Type = type;
-        public SolidColorBrush BackgroundColor = backgroundColor;
-        public SolidColorBrush CircleColor = circleColor;
-        public SolidColorBrush PointerColor = pointerColor;
-        public SolidColorBrush TrailColor = trailColor;
-        public SolidColorBrush LapLineColor = lapLineColor;
-        public SolidColorBrush CounterColor = counterColor;
-        public SolidColorBrush PrimesColor = primesColor;
+        public SolidColorBrush BackgroundColor => backgroundColor;
+        public SolidColorBrush CircleColor => circleColor;
+        public SolidColorBrush PointerColor => pointerColor;
+        public SolidColorBrush TrailColor => trailColor;
+        public SolidColorBrush LapLineColor => lapLineColor;
+        public SolidColorBrush CounterColor => counterColor;
+        public SolidColorBrush PrimesColor => primesColor;
     };
 
     public class Themes
@@ -30,8 +30,8 @@ namespace PrimesWithCircles.Infrastucture
 [
             new(
                 type: ThemeType.DarkNeon,
-                backgroundColor: Brushes.Black,
-                circleColor: Brushes.LightGray,
+                backgroundColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#002F38")),
+                circleColor: Brushes.White,
                 pointerColor: Brushes.Yellow,
                 trailColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF3B3B")),
                 lapLineColor: new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00E5FF")),

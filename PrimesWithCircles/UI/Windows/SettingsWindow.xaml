@@ -9,7 +9,7 @@
         xmlns:extensions="clr-namespace:PrimesWithCircles.Infrastucture.Extensions"
         xmlns:enums="clr-namespace:PrimesWithCircles.Infrastucture.Enums"
         mc:Ignorable="d"
-        Title="Settings" Height="200" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
+        Title="Settings" Height="220" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
 
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -133,19 +133,20 @@
                             <RowDefinition/>
                             <RowDefinition/>
                             <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
 
                         <CheckBox Grid.Column="0" Grid.Row="0" Content="lap counter" IsChecked="{Binding DisplayLapCounter}" Margin="0 5 0 5"/>
                         <CheckBox Grid.Column="0" Grid.Row="1" Content="primes" IsChecked="{Binding DisplayPrimes}" Margin="0 5 0 5"/>
                         <CheckBox Grid.Column="0" Grid.Row="2" Content="lap line" IsChecked="{Binding DisplayLapLine}" Margin="0 5 0 5"/>
-                        <CheckBox Grid.Column="1" Grid.Row="0" Content="flash lap line" IsChecked="{Binding FlashLapLine}" Margin="0 5 0 5"/>
+                        <CheckBox Grid.Column="0" Grid.Row="3" Content="flash lap line" IsChecked="{Binding FlashLapLine}" Margin="0 5 0 5"/>
+                        <CheckBox Grid.Column="1" Grid.Row="0" Content="pointers" IsChecked="{Binding DisplayPointers}" Margin="0 5 0 5"/>
                         <CheckBox Grid.Column="1" Grid.Row="1" Content="circles" IsChecked="{Binding DisplayCircles}" Margin="0 5 0 5"/>
                         <CheckBox Grid.Column="1" Grid.Row="2" Content="trails" IsChecked="{Binding DisplayTrails}" Margin="0 5 0 5"/>
                     </Grid>
                 </StackPanel>
             </TabItem>
         </TabControl>
-
 
     </Grid>
 </Window>

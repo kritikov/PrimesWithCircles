@@ -104,6 +104,9 @@ namespace PrimesWithCircles.UI.Controls
                 case nameof(RotationSettings.FlashLapLine):
                     FlashLapLine = s.FlashLapLine;
                     break;
+                case nameof(RotationSettings.DisplayPointers):
+                    DisplayPointers = s.DisplayPointers;
+                    break;
                 case nameof(RotationSettings.DisplayCircles):
                     DisplayCircles = s.DisplayCircles;
                     break;
@@ -312,7 +315,7 @@ namespace PrimesWithCircles.UI.Controls
                 nameof(ThemeType),
                 typeof(ThemeType),
                 typeof(RotationCanvas),
-                new PropertyMetadata(ThemeType.ClassicNeon, OnThemeTypeChanged)
+                new PropertyMetadata(ThemeType.DarkNeon, OnThemeTypeChanged)
             );
         private static void OnThemeTypeChanged(
             DependencyObject d,
@@ -375,6 +378,29 @@ namespace PrimesWithCircles.UI.Controls
                 typeof(RotationCanvas),
                 new FrameworkPropertyMetadata(true));
 
+
+        public bool DisplayPointers
+        {
+            get => (bool)GetValue(DisplayPointersProperty);
+            set => SetValue(DisplayPointersProperty, value);
+        }
+        public static readonly DependencyProperty DisplayPointersProperty =
+            DependencyProperty.Register(
+                nameof(DisplayPointers),
+                typeof(bool),
+                typeof(RotationCanvas),
+                new FrameworkPropertyMetadata(
+                    true, 
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnDisplayPointersChanged
+                    ));
+        private static void OnDisplayPointersChanged(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = (RotationCanvas)d;
+            Circle.UpdatePointersVisibility(canvas.DisplayPointers, canvas.circles);
+        }
 
         public bool DisplayCircles
         {
