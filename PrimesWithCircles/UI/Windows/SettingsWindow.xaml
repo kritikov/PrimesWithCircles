@@ -9,7 +9,7 @@
         xmlns:extensions="clr-namespace:PrimesWithCircles.Infrastucture.Extensions"
         xmlns:enums="clr-namespace:PrimesWithCircles.Infrastucture.Enums"
         mc:Ignorable="d"
-        Title="Settings" Height="220" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
+        Title="Settings" Height="220" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" >
 
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -101,9 +101,6 @@
                                 Value="{Binding TrailThickness}"/>
                     </StackPanel>
                 </Grid>
-                
-                
-                
             </TabItem>
 
             <TabItem Header="display">
@@ -146,7 +143,29 @@
                     </Grid>
                 </StackPanel>
             </TabItem>
-        </TabControl>
+
+			<TabItem Header="about">
+				<StackPanel Margin="10,10,8,20">
+					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+						<TextBlock Text="created by Nick Kritikou"
+								   TextAlignment="Center"/>
+						<TextBlock Text="2026, GPL 3.0 licence"
+								   TextAlignment="Center"
+								   Margin="0 10 0 10"/>
+						<TextBlock Text="visit me at"
+								   TextAlignment="Center"/>
+						<TextBlock TextAlignment="Center">
+							<Hyperlink NavigateUri="https://nkode.gr/EN/"
+									   RequestNavigate="Hyperlink_RequestNavigate">
+								nkode.gr
+							</Hyperlink>
+						</TextBlock>
+					</StackPanel>
+
+				</StackPanel>
+			</TabItem>
+
+		</TabControl>
 
     </Grid>
 </Window>

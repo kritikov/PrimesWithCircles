@@ -1,5 +1,7 @@
 ﻿using PrimesWithCircles.Infrastucture;
+using System.Diagnostics;
 using System.Windows;
+using System.Windows.Navigation;
 
 namespace PrimesWithCircles.UI.Windows
 {
@@ -41,9 +43,14 @@ namespace PrimesWithCircles.UI.Windows
             Application.Current.Shutdown();
         }
 
-        private void Window_Closed(object sender, EventArgs e)
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
-
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = e.Uri.AbsoluteUri,
+                UseShellExecute = true
+            });
         }
+
     }
 }
