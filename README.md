@@ -8,7 +8,7 @@ The application runs in Windows 10 or later
 
 You can view a presentation at https://youtu.be/yKuR0GW0x7k
 
-or read more informations at https://nkode.gr/EN/articleView?id=278
+or read more informations at https://nkode.gr/EN/articles/278/when-prime-numbers-emerge-from-motion
 
 <img width="1225" height="859" alt="image" src="https://github.com/user-attachments/assets/13f3dd7c-6453-4510-bcaf-09c46d7ffad3" />
 <img width="1227" height="856" alt="image" src="https://github.com/user-attachments/assets/d261e616-2cef-43f3-b7ff-86c74cbf5428" />
