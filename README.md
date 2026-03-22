@@ -1,10 +1,28 @@
-Finding primes using circles.
+# Primes With Circles
+
+**Visualizing Prime Numbers through Kinetic Motion and Resonance.**
+
+This project is a C# / WPF application that explores the emergence of prime numbers using rotating circles. Instead of a static sieve, it treats primality as a phenomenon of phase alignment and periodic motion.
+
+---
 
 License: GPL-3.0-or-later
 
-This application finds the prime numbers using only circles. The algorithm shows how prime numbers can emerge from simple, periodic relationships — without division, without checking potential divisors, and without even knowing what a prime number is.
+### 🚀 Features
+* **Kinetic Visualization:** Watch prime numbers "emerge" as rotating phases.
+* **Pure C# / WPF:** Built using native `DrawingContext` rendering for high performance.
+* **No External Dependencies:** Zero third-party libraries; just clean, optimized code.
 
-The application runs in Windows 10 or later
+### 🧠 How it works
+Each number $n$ is represented by a circle rotating at a specific frequency. As the simulation progresses, prime numbers are identified when their "motion" doesn't resonate with any previous divisors. It's a geometric, dynamic interpretation of the Sieve of Eratosthenes.
+
+### 🛠️ Technical Details
+* **Language:** C#
+* **Framework:** .NET / WPF
+* **Rendering:** Direct rendering override in `OnRender` for maximum control and efficiency.
+
+---
+
 
 You can view a presentation at https://youtu.be/yKuR0GW0x7k
 
