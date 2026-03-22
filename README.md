@@ -2,6 +2,10 @@
 
 **Visualizing Prime Numbers through Kinetic Motion and Resonance.**
 
+<img width="1225" height="859" alt="image" src="https://github.com/user-attachments/assets/13f3dd7c-6453-4510-bcaf-09c46d7ffad3" />
+
+---
+
 This project is a C# / WPF application that explores the emergence of prime numbers using rotating circles. Instead of a static sieve, it treats primality as a phenomenon of phase alignment and periodic motion.
 
 ---
@@ -28,7 +32,7 @@ You can view a presentation at https://youtu.be/yKuR0GW0x7k
 
 or read more informations at https://nkode.gr/EN/articles/278/when-prime-numbers-emerge-from-motion
 
-<img width="1225" height="859" alt="image" src="https://github.com/user-attachments/assets/13f3dd7c-6453-4510-bcaf-09c46d7ffad3" />
+
 <img width="1227" height="856" alt="image" src="https://github.com/user-attachments/assets/d261e616-2cef-43f3-b7ff-86c74cbf5428" />
 
 
