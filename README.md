@@ -17,8 +17,17 @@ License: GPL-3.0-or-later
 * **Pure C# / WPF:** Built using native `DrawingContext` rendering for high performance.
 * **No External Dependencies:** Zero third-party libraries; just clean, optimized code.
 
-### 🧠 How it works
-Each number $n$ is represented by a circle rotating at a specific frequency. As the simulation progresses, prime numbers are identified when their "motion" doesn't resonate with any previous divisors. It's a geometric, dynamic interpretation of the Sieve of Eratosthenes.
+### 🧠 How it works: Cyclic Prime Emergence Algorithm
+
+The core logic follows a geometric progression where primes are identified through synchronized rotations:
+
+1. **Initialization:** Start with two concentric circles of radius $r$ and $2r$.
+2. **Motion:** Rotate them with constant linear speed from the same starting point.
+3. **Iteration:** Each time the first circle completes a full rotation, increment a counter $n$.
+4. **Detection:** If no other circle finishes its rotation at the exact same time as the first, then the current counter value $n$ is **prime**.
+5. **Growth:** If $n$ is found to be prime, add a new concentric circle with a radius of $n \times r$.
+
+This creates a dynamic, visual "Sieve of Eratosthenes" where primality is a function of geometric resonance.
 
 ### 🛠️ Technical Details
 * **Language:** C#
@@ -32,6 +41,8 @@ You can view a presentation at https://youtu.be/yKuR0GW0x7k
 or read more informations at https://nkode.gr/EN/articles/278/when-prime-numbers-emerge-from-motion
 
 <img width="1227" height="856" alt="image" src="https://github.com/user-attachments/assets/d261e616-2cef-43f3-b7ff-86c74cbf5428" />
+
+<img width="1227" height="820" alt="image" src="https://github.com/user-attachments/assets/d1b45f70-b9ec-4d27-a86e-fa269f418724" />
 
 
 
