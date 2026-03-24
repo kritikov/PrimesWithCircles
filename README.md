@@ -27,7 +27,7 @@ The core logic follows a geometric progression where primes are identified throu
 4. **Detection:** If no other circle finishes its rotation at the exact same time as the first, then the current counter value $n$ is **prime**.
 5. **Growth:** If $n$ is found to be prime, add a new concentric circle with a radius of $n \times r$.
 
-This creates a dynamic, visual "Sieve of Eratosthenes" where primality is a function of geometric resonance.
+This creates an open-ended, geometric simulation where primality emerges from phase alignment. Unlike the traditional Sieve of Eratosthenes, this approach requires no divisions and no predefined upper limit; it is a streaming visualization of number theory in motion.
 
 ### 🛠️ Technical Details
 * **Language:** C#
