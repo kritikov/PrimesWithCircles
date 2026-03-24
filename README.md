@@ -32,7 +32,7 @@ This creates a dynamic, visual "Sieve of Eratosthenes" where primality is a func
 ### 🛠️ Technical Details
 * **Language:** C#
 * **Framework:** .NET / WPF
-* **Rendering:** Direct rendering override in `OnRender` for maximum control and efficiency.
+* **Rendering:** High-performance animation driven by CompositionTarget.Rendering, ensuring frame-perfect synchronization with the monitor's refresh rate.
 
 ---
 
