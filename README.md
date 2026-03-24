@@ -29,6 +29,12 @@ The core logic follows a geometric progression where primes are identified throu
 
 This creates an open-ended, geometric simulation where primality emerges from phase alignment. Unlike the traditional Sieve of Eratosthenes, this approach requires no divisions and no predefined upper limit; it is a streaming visualization of number theory in motion.
 
+### 💡 Key Differences from the Sieve of Eratosthenes
+
+While inspired by classical number theory, this implementation introduces two fundamental shifts:
+* **Zero Divisions:** Primality is determined through geometric resonance and phase alignment rather than arithmetic division ($n \pmod d$).
+* **Infinite Streaming:** Unlike the static "batch" nature of Eratosthenes' sieve, this is an incremental process. It requires no predefined upper limit, allowing primes to emerge continuously as the simulation evolves.
+
 ### 🛠️ Technical Details
 * **Language:** C#
 * **Framework:** .NET / WPF
