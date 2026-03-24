@@ -14,7 +14,7 @@ License: GPL-3.0-or-later
 
 ### 🚀 Features
 * **Kinetic Visualization:** Watch prime numbers "emerge" as rotating phases.
-* **Pure C# / WPF:** Built using native `DrawingContext` rendering for high performance.
+* **Pure C# / WPF:** The animation is driven by CompositionTarget.Rendering.
 * **No External Dependencies:** Zero third-party libraries; just clean, optimized code.
 
 ### 🧠 How it works: Cyclic Prime Emergence Algorithm
