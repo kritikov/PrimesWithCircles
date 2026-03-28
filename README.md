@@ -29,6 +29,8 @@ The core logic follows a geometric progression where primes are identified throu
 
 This creates an open-ended, geometric simulation where primality emerges from phase alignment. Unlike the traditional Sieve of Eratosthenes, this approach requires no divisions and no predefined upper limit; it is a streaming visualization of number theory in motion.
 
+https://www.youtube.com/watch?v=Co_JL9jhab4&feature=youtu.be
+
 ### 💡 Key Differences from the Sieve of Eratosthenes
 
 While inspired by classical number theory, this implementation introduces two fundamental shifts:
