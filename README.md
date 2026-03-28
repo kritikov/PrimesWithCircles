@@ -45,9 +45,9 @@ While inspired by classical number theory, this implementation introduces two fu
 
 ---
 
-You can view a presentation at https://youtu.be/yKuR0GW0x7k
+You can view a full presentation at https://youtu.be/yKuR0GW0x7k
 
-or find more details at https://nkode.gr/EN/articles/278/when-prime-numbers-emerge-from-motion
+or read more details at https://nkode.gr/EN/articles/278/when-prime-numbers-emerge-from-motion
 
 <img width="1227" height="856" alt="image" src="https://github.com/user-attachments/assets/d261e616-2cef-43f3-b7ff-86c74cbf5428" />
 
