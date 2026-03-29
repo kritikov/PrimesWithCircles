@@ -740,6 +740,10 @@ namespace PrimesWithCircles.UI.Controls
             // if the first circle completed a lap
             if (firstCircleCompletedLap)
             {
+                // precautions but probably not needed: it wont reach int.MaxValue because it would take too long, but just in case to avoid overflow
+                if (LapCounter == int.MaxValue)
+                    StopRotating();
+
                 // increase lap counter
                 LapCounter++;
 
